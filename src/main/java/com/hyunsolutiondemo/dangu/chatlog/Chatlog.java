@@ -1,5 +1,7 @@
 package com.hyunsolutiondemo.dangu.chatlog;
 
+import com.hyunsolutiondemo.dangu.user.User;
+import com.hyunsolutiondemo.dangu.workspace.Workspace;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,16 +17,19 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Chatlog {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private User user;
 
-    @Column(name = "workspace_id", nullable = false)
-    private Long workspaceId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "workspace_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Workspace workspace;
 
     @Column(name = "enter_time", nullable = true)
     private LocalDateTime enterTime;
@@ -49,13 +54,12 @@ public class Chatlog {
      */
 
     @Builder
-    public Chatlog(Long userId, Long workspaceId, Boolean isOut, Integer readCount, LocalDateTime enterTime){
-        this.userId = userId;
-        this.workspaceId = workspaceId;
+    public Chatlog( User user, Workspace workspace, LocalDateTime enterTime,Boolean isOut,Integer readCount){
+        this.user = user;
+        this.workspace = workspace;
+        this.enterTime=enterTime;
         this.isOut = isOut;
         this.readCount = readCount;
-        this.enterTime=enterTime;
-
     }
 
 
