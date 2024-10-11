@@ -26,7 +26,7 @@ public class Chatting {
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User user;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 255, nullable = false)
     private String content;
 
     @Column(name = "createdAt", nullable = false)
