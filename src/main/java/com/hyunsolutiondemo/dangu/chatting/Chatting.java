@@ -30,7 +30,7 @@ public class Chatting {
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User user;
 
-    @Column(length = 255, nullable = false)
+    @Column(nullable = false)
     private String content;
 
     @Column(name = "created_at", nullable = false)
