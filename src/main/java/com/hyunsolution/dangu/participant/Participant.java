@@ -1,7 +1,7 @@
-package com.hyunsolutiondemo.dangu.participant;
+package com.hyunsolution.dangu.participant;
 
-import com.hyunsolutiondemo.dangu.user.User;
-import com.hyunsolutiondemo.dangu.workspace.Workspace;
+import com.hyunsolution.dangu.user.domain.User;
+import com.hyunsolution.dangu.workspace.domain.WorkSpace;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,14 +24,14 @@ public class Participant {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Workspace workspace;
+    private WorkSpace workspace;
 
     @Column(name = "participant_match", nullable = false)
     @ColumnDefault("false")
     private boolean participantMatch;
 
     @Builder
-    public Participant(User user, Workspace workspace, boolean participantMatch) {
+    public Participant(User user, WorkSpace workspace, boolean participantMatch) {
         this.user = user;
         this.workspace = workspace;
         this.participantMatch = participantMatch;

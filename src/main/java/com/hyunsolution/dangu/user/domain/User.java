@@ -1,4 +1,4 @@
-package com.hyunsolutiondemo.dangu.user;
+package com.hyunsolution.dangu.user.domain;
 
 import lombok.AccessLevel;
 import lombok.Builder;

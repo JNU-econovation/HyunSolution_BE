@@ -1,12 +1,11 @@
-package com.hyunsolutiondemo.dangu.chatting;
+package com.hyunsolution.dangu.chatting;
 
-import com.hyunsolutiondemo.dangu.user.User;
-import com.hyunsolutiondemo.dangu.workspace.Workspace;
+import com.hyunsolution.dangu.user.domain.User;
+import com.hyunsolution.dangu.workspace.domain.WorkSpace;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -24,7 +23,7 @@ public class Chatting {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Workspace workspace;
+    private WorkSpace workspace;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -38,7 +37,7 @@ public class Chatting {
     private LocalDateTime createdAt;
 
     @Builder
-    public Chatting(Workspace workspace, User user, String content, LocalDateTime createdAt) {
+    public Chatting(WorkSpace workspace, User user, String content, LocalDateTime createdAt) {
         this.workspace = workspace;
         this.user = user;
         this.content = content;

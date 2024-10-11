@@ -1,7 +1,7 @@
-package com.hyunsolutiondemo.dangu.chatlog;
+package com.hyunsolution.dangu.chatlog;
 
-import com.hyunsolutiondemo.dangu.user.User;
-import com.hyunsolutiondemo.dangu.workspace.Workspace;
+import com.hyunsolution.dangu.user.domain.User;
+import com.hyunsolution.dangu.workspace.domain.WorkSpace;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Getter
@@ -29,7 +27,7 @@ public class Chatlog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Workspace workspace;
+    private WorkSpace workspace;
 
     @Column(name = "enter_time", nullable = true)
     private LocalDateTime enterTime;
@@ -54,7 +52,7 @@ public class Chatlog {
      */
 
     @Builder
-    public Chatlog( User user, Workspace workspace, LocalDateTime enterTime,Boolean isOut,Integer readCount){
+    public Chatlog(User user, WorkSpace workspace, LocalDateTime enterTime, Boolean isOut, Integer readCount){
         this.user = user;
         this.workspace = workspace;
         this.enterTime=enterTime;

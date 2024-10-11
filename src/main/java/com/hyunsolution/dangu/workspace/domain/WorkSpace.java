@@ -1,6 +1,6 @@
-package com.hyunsolutiondemo.dangu.workspace;
+package com.hyunsolution.dangu.workspace.domain;
 
-import com.hyunsolutiondemo.dangu.user.User;
+import com.hyunsolution.dangu.user.domain.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Workspace {
+public class WorkSpace {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +31,7 @@ public class Workspace {
     private int totalCnt;
 
     @Builder
-    public Workspace(User user, boolean isMatched,int totalCnt) {
+    public WorkSpace(User user, boolean isMatched, int totalCnt) {
         this.user=user;
         this.isMatched = isMatched;
         this.totalCnt=totalCnt;
