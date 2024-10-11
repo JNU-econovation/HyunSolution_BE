@@ -26,20 +26,15 @@ public class Workspace {
     @ColumnDefault("false")
     private boolean isMatched;
 
-    @Column(name = "creator_match", nullable = false)
-    @ColumnDefault("false")
-    private boolean creatorMatch;
-
     @Column(name = "total_cnt", nullable = false)
     @ColumnDefault("0")
-    private int tocalCnt;
+    private int totalCnt;
 
     @Builder
-    public Workspace(User user, boolean isMatched, boolean creatorMatch, int totalCnt) {
+    public Workspace(User user, boolean isMatched,int totalCnt) {
         this.user=user;
         this.isMatched = isMatched;
-        this.creatorMatch = creatorMatch;
-        this.tocalCnt=totalCnt;
+        this.totalCnt=totalCnt;
     }
 
 
