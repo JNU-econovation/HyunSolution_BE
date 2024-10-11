@@ -26,15 +26,15 @@ public class Participant {
     @JoinColumn(name = "workspace_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Workspace workspace;
 
-    @Column(name = "visitor_match", nullable = false)
+    @Column(name = "participant_match", nullable = false)
     @ColumnDefault("false")
-    private boolean visitorMatch;
+    private boolean participantMatch;
 
     @Builder
-    public Participant(User user, Workspace workspace, boolean visitorMatch) {
+    public Participant(User user, Workspace workspace, boolean participantMatch) {
         this.user = user;
         this.workspace = workspace;
-        this.visitorMatch = visitorMatch;
+        this.participantMatch = participantMatch;
     }
 
 }
