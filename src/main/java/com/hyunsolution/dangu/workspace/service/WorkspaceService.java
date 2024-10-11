@@ -4,8 +4,11 @@ import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
+import com.hyunsolution.dangu.workspace.dto.response.GetWorkspacesResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +23,12 @@ public class WorkspaceService {
                 .creator(user)
                 .build();
         workSpaceRepository.save(workSpace);
+    }
+
+    public List<GetWorkspacesResponse> getWorkspaces() {
+        return workSpaceRepository.findAll().stream()
+                .filter(workspace -> !workspace.isMatched())
+                .map(workspace -> GetWorkspacesResponse.of(workspace.getId(), workspace.getCreator().getUid())).toList();
     }
 }
 

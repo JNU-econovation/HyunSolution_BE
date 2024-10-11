@@ -1,10 +1,11 @@
 package com.hyunsolution.dangu.workspace.controller;
 
+import com.hyunsolution.dangu.workspace.dto.response.GetWorkspacesResponse;
 import com.hyunsolution.dangu.workspace.service.WorkspaceService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,5 +16,10 @@ public class WorkSpaceController {
     @PostMapping("/workspace")
     public void addWorkSpace(@RequestHeader("Authorization") String id) {
         workSpaceService.addWorkspace(Long.valueOf(id));
+    }
+
+    @GetMapping("/workspaces")
+    public List<GetWorkspacesResponse> getWorkspaces() {
+        return workSpaceService.getWorkspaces();
     }
 }
