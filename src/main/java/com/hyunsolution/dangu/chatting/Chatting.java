@@ -1,7 +1,7 @@
 package com.hyunsolution.dangu.chatting;
 
 import com.hyunsolution.dangu.user.domain.User;
-import com.hyunsolution.dangu.workspace.domain.WorkSpace;
+import com.hyunsolution.dangu.workspace.domain.Workspace;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +23,7 @@ public class Chatting {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private WorkSpace workspace;
+    private Workspace workspace;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -37,7 +37,7 @@ public class Chatting {
     private LocalDateTime createdAt;
 
     @Builder
-    public Chatting(WorkSpace workspace, User user, String content, LocalDateTime createdAt) {
+    public Chatting(Workspace workspace, User user, String content, LocalDateTime createdAt) {
         this.workspace = workspace;
         this.user = user;
         this.content = content;

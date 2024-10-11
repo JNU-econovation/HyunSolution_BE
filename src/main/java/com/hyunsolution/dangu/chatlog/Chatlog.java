@@ -1,7 +1,7 @@
 package com.hyunsolution.dangu.chatlog;
 
 import com.hyunsolution.dangu.user.domain.User;
-import com.hyunsolution.dangu.workspace.domain.WorkSpace;
+import com.hyunsolution.dangu.workspace.domain.Workspace;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,7 +27,7 @@ public class Chatlog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private WorkSpace workspace;
+    private Workspace workspace;
 
     @Column(name = "enter_time", nullable = true)
     private LocalDateTime enterTime;
@@ -52,7 +52,7 @@ public class Chatlog {
      */
 
     @Builder
-    public Chatlog(User user, WorkSpace workspace, LocalDateTime enterTime, Boolean isOut, Integer readCount){
+    public Chatlog(User user, Workspace workspace, LocalDateTime enterTime, Boolean isOut, Integer readCount){
         this.user = user;
         this.workspace = workspace;
         this.enterTime=enterTime;

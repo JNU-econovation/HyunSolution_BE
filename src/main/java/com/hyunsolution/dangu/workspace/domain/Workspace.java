@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class WorkSpace {
+public class Workspace {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +31,7 @@ public class WorkSpace {
     private int totalCnt;
 
     @Builder
-    public WorkSpace(User user, boolean isMatched, int totalCnt) {
+    public Workspace(User user, boolean isMatched, int totalCnt) {
         this.user=user;
         this.isMatched = isMatched;
         this.totalCnt=totalCnt;
