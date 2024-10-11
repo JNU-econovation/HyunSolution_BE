@@ -20,7 +20,7 @@ public class Workspace {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User user;
+    private User creator;
 
     @Column(name = "is_matched", nullable = false)
     @ColumnDefault("false")
@@ -31,8 +31,8 @@ public class Workspace {
     private int totalCnt;
 
     @Builder
-    public Workspace(User user, boolean isMatched, int totalCnt) {
-        this.user=user;
+    public Workspace(User creator, boolean isMatched, int totalCnt) {
+        this.creator=creator;
         this.isMatched = isMatched;
         this.totalCnt=totalCnt;
     }
