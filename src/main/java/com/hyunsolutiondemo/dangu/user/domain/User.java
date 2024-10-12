@@ -1,4 +1,4 @@
-package com.hyunsolutiondemo.dangu.user;
+package com.hyunsolutiondemo.dangu.user.domain;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -13,7 +13,7 @@ import javax.persistence.*;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     private String uid;
 
