@@ -1,7 +1,7 @@
-package com.hyunsolutiondemo.dangu.participant;
+package com.hyunsolutiondemo.dangu.participant.domain;
 
-import com.hyunsolutiondemo.dangu.user.User;
-import com.hyunsolutiondemo.dangu.workspace.Workspace;
+import com.hyunsolutiondemo.dangu.user.domain.User;
+import com.hyunsolutiondemo.dangu.workspace.domain.Workspace;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,6 +35,10 @@ public class Participant {
         this.user = user;
         this.workspace = workspace;
         this.participantMatch = participantMatch;
+    }
+
+    public void accept() {
+        this.participantMatch = true;
     }
 
 }

@@ -1,6 +1,6 @@
-package com.hyunsolutiondemo.dangu.workspace;
+package com.hyunsolutiondemo.dangu.workspace.domain;
 
-import com.hyunsolutiondemo.dangu.user.User;
+import com.hyunsolutiondemo.dangu.user.domain.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +16,7 @@ public class Workspace {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -28,15 +28,18 @@ public class Workspace {
 
     @Column(name = "total_cnt", nullable = false)
     @ColumnDefault("0")
-    private int totalCnt;
+    private Integer totalCnt;
 
     @Builder
-    public Workspace(User user, boolean isMatched,int totalCnt) {
+    public Workspace(User user, boolean isMatched,Integer totalCnt) {
         this.user=user;
         this.isMatched = isMatched;
         this.totalCnt=totalCnt;
     }
 
+    public void finalAccept() {
+        this.isMatched = true;
+    }
 
 
 }
