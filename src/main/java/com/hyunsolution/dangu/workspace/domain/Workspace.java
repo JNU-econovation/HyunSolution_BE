@@ -1,13 +1,12 @@
 package com.hyunsolution.dangu.workspace.domain;
 
 import com.hyunsolution.dangu.user.domain.User;
+import javax.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-
-import javax.persistence.*;
 
 @Entity
 @Getter
@@ -19,7 +18,10 @@ public class Workspace {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User creator;
 
     @Column(name = "is_matched", nullable = false)
@@ -32,11 +34,8 @@ public class Workspace {
 
     @Builder
     public Workspace(User creator, boolean isMatched, int totalCnt) {
-        this.creator=creator;
+        this.creator = creator;
         this.isMatched = isMatched;
-        this.totalCnt=totalCnt;
+        this.totalCnt = totalCnt;
     }
-
-
-
 }
