@@ -20,11 +20,11 @@ public class ParticipantController {
     private final WorkspaceRepository workspaceRepository;
     private final ParticipantService participantService;
 
-
     @PostMapping("/participant/matching/{roomNumber}")
-    public ApiResponse<?> matching(@RequestHeader("Authorization") Long id, @PathVariable("roomNumber") Long workspaceId) {
+    public ApiResponse<?> matching(
+            @RequestHeader("Authorization") Long id, @PathVariable("roomNumber") Long workspaceId) {
 
-        //매칭확인버튼 누른 사용자 매칭칼럼 상태 변경
+        // 매칭확인버튼 누른 사용자 매칭칼럼 상태 변경
         participantService.changeMatching(id, workspaceId);
         return ApiResponse.success(null);
     }

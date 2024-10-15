@@ -1,15 +1,8 @@
-<<<<<<<< HEAD:src/main/java/com/hyunsolution/dangu/participant/Participant.java
 package com.hyunsolution.dangu.participant;
 
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import javax.persistence.*;
-========
-package com.hyunsolution.dangu.participant.domain;
-
-import com.hyunsolution.dangu.user.domain.User;
-import com.hyunsolution.dangu.workspace.domain.Workspace;
->>>>>>>> e26f9a76aca76b518f2e10421cc962bf59c57d48:src/main/java/com/hyunsolution/dangu/participant/domain/Participant.java
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,12 +41,8 @@ public class Participant {
         this.workspace = workspace;
         this.participantMatch = participantMatch;
     }
-<<<<<<<< HEAD:src/main/java/com/hyunsolution/dangu/participant/Participant.java
-========
 
     public void accept() {
         this.participantMatch = true;
     }
-
->>>>>>>> e26f9a76aca76b518f2e10421cc962bf59c57d48:src/main/java/com/hyunsolution/dangu/participant/domain/Participant.java
 }

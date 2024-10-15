@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomException extends RuntimeException {
     private final ErrorCode errorCode;
 
-    public String getMessage(){
+    public String getMessage() {
         return errorCode.getMessage();
     }
 }

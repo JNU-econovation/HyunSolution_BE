@@ -38,4 +38,8 @@ public class Workspace {
         this.isMatched = isMatched;
         this.totalCnt = totalCnt;
     }
+
+    public void finalAccept() {
+        this.isMatched = true;
+    }
 }
