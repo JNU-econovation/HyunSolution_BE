@@ -36,7 +36,7 @@ public class Participant {
     private boolean participantMatch;
 
     @Builder
-    public Participant(User user, Workspace workspace, boolean participantMatch) {
+    private Participant(User user, Workspace workspace, boolean participantMatch) {
         this.user = user;
         this.workspace = workspace;
         this.participantMatch = participantMatch;
