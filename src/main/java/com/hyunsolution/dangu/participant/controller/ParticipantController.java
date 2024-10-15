@@ -23,7 +23,8 @@ public class ParticipantController {
 
     @PostMapping("/participant/matching/{roomNumber}")
     public ApiResponse<?> matching(
-            @Parameter(hidden = true) @RequestHeader("Authorization") Long id, @PathVariable("roomNumber") Long workspaceId) {
+            @Parameter(hidden = true) @RequestHeader("Authorization") Long id,
+            @PathVariable("roomNumber") Long workspaceId) {
 
         // 매칭확인버튼 누른 사용자 매칭칼럼 상태 변경
         participantService.changeMatching(id, workspaceId);
