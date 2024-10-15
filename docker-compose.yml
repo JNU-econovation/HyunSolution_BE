@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+  hyunsolutionDB:  # MySQL 컨테이너
+    container_name: hyunsolution-db   # MySQL 컨테이너 이름
+    image: mysql:8.0.4
+    restart: always
+    volumes:
+      - mysql_volume:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    networks:
+      - HS-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  SpringServer:  # Spring Boot 컨테이너
+    container_name: hyunsolution-server  # Spring Boot 컨테이너 이름
+    image: leedahyun/hyunsolution_server:1.0
+    ports:
+      - "8080:8080"
+    volumes:
+      - HS_images:/app/HS/images
+    networks:
+      - HS-net
+    depends_on:
+      hyunsolutionDB:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://hyunsolutionDB:3306/nomad
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+
+
+networks:
+  HS-net:
+    driver: bridge
+
+volumes:
+  mysql_volume:
+    driver: local
+  HS_images:
+    driver: local
