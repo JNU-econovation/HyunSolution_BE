@@ -5,6 +5,8 @@ import com.hyunsolution.dangu.workspace.dto.response.GetWorkspacesResponse;
 import com.hyunsolution.dangu.workspace.service.WorkspaceService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
+
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,8 +18,8 @@ public class WorkSpaceController {
     // TODO: @다다 님이 ApiResponse 개발하면 수정할 예정
     @PostMapping("/workspace")
     @Operation(summary = "워크스페이스(매칭) 생성", description = "워크스페이스(매칭)를 생성한다.")
-    public ApiResponse<Void> addWorkSpace(@RequestHeader("Authorization") String id) {
-        workSpaceService.addWorkspace(Long.valueOf(id));
+    public ApiResponse<Void> addWorkSpace(@Parameter(hidden = true) @RequestHeader("Authorization") Long id) {
+        workSpaceService.addWorkspace(id);
         return ApiResponse.successResponseNull();
     }
 
