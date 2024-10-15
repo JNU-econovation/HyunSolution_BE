@@ -1,21 +1,14 @@
 package com.hyunsolution.dangu.common.exception;
 
 import javax.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
+@Builder
 public class ExceptionDto {
-    @NotNull private final Integer code;
-
+    @NotNull private final String code;
     @NotNull private final String message;
-
-    public ExceptionDto(ErrorCode errorCode) {
-        this.code = errorCode.getCode();
-        this.message = errorCode.getMessage();
-    }
-
-    public static ExceptionDto of(ErrorCode errorCode) {
-
-        return new ExceptionDto(errorCode);
-    }
+    @NotNull private final HttpStatus httpStatus;
 }

@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class CustomException extends RuntimeException {
-    private final ErrorCode errorCode;
+    private final BaseErrorCode errorCode;
 
-    public String getMessage() {
-        return errorCode.getMessage();
+    public ExceptionDto getErrorReason() {
+        return errorCode.getErrorReason();
     }
 }

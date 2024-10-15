@@ -1,6 +1,7 @@
 package com.hyunsolution.dangu.common.apiResponse;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hyunsolution.dangu.common.exception.BaseErrorCode;
 import com.hyunsolution.dangu.common.exception.CustomException;
 import com.hyunsolution.dangu.common.exception.ExceptionDto;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,9 @@ public record ApiResponse<T>(
     }
 
     public static <T> ApiResponse<T> fail(final CustomException e) {
+        BaseErrorCode errorCode = e.getErrorCode();
+        ExceptionDto errorReason = errorCode.getErrorReason();
         return new ApiResponse<>(
-                e.getErrorCode().getHttpStatus(), false, null, ExceptionDto.of(e.getErrorCode()));
+                e.getErrorCode().getErrorReason().getHttpStatus(), false, null, errorReason);
     }
 }
