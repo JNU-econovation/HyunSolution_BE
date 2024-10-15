@@ -1,5 +1,6 @@
-package com.hyunsolution.dangu.common.apiResponse;
+package com.hyunsolution.dangu.common.exception;
 
+import com.hyunsolution.dangu.common.apiResponse.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;

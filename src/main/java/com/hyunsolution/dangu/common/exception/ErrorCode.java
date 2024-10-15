@@ -1,4 +1,4 @@
-package com.hyunsolution.dangu.common.apiResponse;
+package com.hyunsolution.dangu.common.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
