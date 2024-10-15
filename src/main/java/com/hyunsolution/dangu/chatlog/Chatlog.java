@@ -1,15 +1,14 @@
 package com.hyunsolution.dangu.chatlog;
 
-import com.hyunsolution.dangu.user.User;
-import com.hyunsolution.dangu.workspace.Workspace;
+import com.hyunsolution.dangu.user.domain.User;
+import com.hyunsolution.dangu.workspace.domain.Workspace;
+import java.time.LocalDateTime;
+import javax.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-
-import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -22,11 +21,17 @@ public class Chatlog {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "workspace_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(
+            name = "workspace_id",
+            nullable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Workspace workspace;
 
     @Column(name = "enter_time", nullable = true)
@@ -52,13 +57,16 @@ public class Chatlog {
      */
 
     @Builder
-    public Chatlog( User user, Workspace workspace, LocalDateTime enterTime,Boolean isOut,Integer readCount){
+    public Chatlog(
+            User user,
+            Workspace workspace,
+            LocalDateTime enterTime,
+            Boolean isOut,
+            Integer readCount) {
         this.user = user;
         this.workspace = workspace;
-        this.enterTime=enterTime;
+        this.enterTime = enterTime;
         this.isOut = isOut;
         this.readCount = readCount;
     }
-
-
 }
