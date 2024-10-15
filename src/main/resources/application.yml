@@ -1,0 +1,24 @@
+spring:
+  application:
+    name:
+      demo
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: jdbc:${MYSQL:mysql}://${HOST:localhost}:${PORT:3306}/${DATABASE}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: update # ?? ????? create, production ????? update ?? validate? ??
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    defer-datasource-initialization: true
+
