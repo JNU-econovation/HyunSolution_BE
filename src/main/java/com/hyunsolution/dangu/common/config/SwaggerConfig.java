@@ -4,6 +4,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.security.SecurityScheme.In;
 import io.swagger.v3.oas.models.security.SecurityScheme.Type;
@@ -23,7 +24,13 @@ public class SwaggerConfig {
     public OpenAPI openAPI(ServletContext servletContext) {
         String contextPath = servletContext.getContextPath();
         Server server = new Server().url(contextPath);
-        return new OpenAPI().servers(List.of(server)).components(authSetting()).info(swaggerInfo());
+        return new OpenAPI()
+                .servers(List.of(server))
+                .components(authSetting())
+                .info(swaggerInfo())
+                .addSecurityItem(
+                        new SecurityRequirement()
+                                .addList("Authorization")); // SecurityRequirement 추가
     }
 
     private Info swaggerInfo() {
@@ -40,12 +47,7 @@ public class SwaggerConfig {
     private Components authSetting() {
         return new Components()
                 .addSecuritySchemes(
-                        "access-token",
-                        new SecurityScheme()
-                                .type(Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")
-                                .in(In.HEADER)
-                                .name("Authorization"));
+                        "Authorization",
+                        new SecurityScheme().type(Type.APIKEY).in(In.HEADER).name("Authorization"));
     }
 }
