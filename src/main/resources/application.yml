@@ -1,7 +1,4 @@
 spring:
-  application:
-    name:
-      demo
   config:
     import: optional:file:.env[.properties]
   datasource:
@@ -21,4 +18,6 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
     defer-datasource-initialization: true
-
+springdoc:
+  api-docs:
+    enabled: true
