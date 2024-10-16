@@ -57,7 +57,7 @@ public class Chatlog {
      */
 
     @Builder
-    public Chatlog(
+    private Chatlog(
             User user,
             Workspace workspace,
             LocalDateTime enterTime,
