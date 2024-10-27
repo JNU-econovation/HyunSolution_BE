@@ -1,47 +1,80 @@
+version: '3.1'
 services:
-  hyunsolutionDB: # MySQL 컨테이너
-    container_name: hyunsolution-db   # MySQL 컨테이너 이름
-    image: mysql:8.4.0
-    restart: always
+  nginx:
+    container_name: hyunsolution-nginx
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
-      - mysql_volume:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-    ports:
-      - "3306:3306"
+      - ./data/nginx:/etc/nginx/conf.d
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    depends_on:
+      - SpringServer
+      - certbot
+    restart: always
     networks:
-      - HS-net
-    healthcheck:
-      test: [ 'CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD' ]
-      timeout: 20s
-      retries: 10
+      - external-network
 
-  SpringServer: # Spring Boot 컨테이너
-    container_name: hyunsolution-server  # Spring Boot 컨테이너 이름
+  certbot:
+    container_name: hyunsolution-certbot
+    image: certbot/certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - external-network
+
+  SpringServer:
+    container_name: hyunsolution-server
     image: leedahyun/hyunsolution_server:latest
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     volumes:
       - HS_images:/app/HS/images
-    networks:
-      - HS-net
     depends_on:
       hyunsolutionDB:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://hyunsolutionDB:3306/nomad
+      SPRING_DATASOURCE_URL: jdbc:mysql://hyunsolutionDB:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_PROFILES_ACTIVE: prod
+    restart: always
+    networks:
+      - external-network
+      - internal-network
 
+  hyunsolutionDB:
+    container_name: hyunsolution-db
+    image: mysql:8.0
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      TZ: Asia/Seoul
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    networks:
+      - internal-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
-  HS-net:
-    driver: bridge
+  external-network:
+  internal-network:
 
 volumes:
-  mysql_volume:
-    driver: local
   HS_images:
-    driver: local
-
+  mysql_data:
