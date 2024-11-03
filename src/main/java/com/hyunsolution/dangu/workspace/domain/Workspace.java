@@ -33,7 +33,7 @@ public class Workspace {
     private int totalCnt;
 
     @Builder
-    public Workspace(User creator, boolean isMatched, int totalCnt) {
+    private Workspace(User creator, boolean isMatched, int totalCnt) {
         this.creator = creator;
         this.isMatched = isMatched;
         this.totalCnt = totalCnt;
