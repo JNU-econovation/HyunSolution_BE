@@ -31,7 +31,11 @@ public class UserService {
         }
     }
 
-    public User registerUser(String username, String password) {
-        return userRepository.save(new User(username, password));
+    public User registerUser(String uid, String password) {
+        return userRepository.save(User.
+                builder()
+                .uid(uid)
+                .password(password)
+                .build());
     }
 }
