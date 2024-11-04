@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum UserError implements BaseErrorCode {
     USER_NOT_FOUND("USER_400_1", HttpStatus.BAD_REQUEST, "사용자를 찾을 수 없습니다."),
-    ;
+    USER_WRONG_PASSWORD("USER_400_2", HttpStatus.BAD_REQUEST, "비밀번호가 틀렸습니다.");
 
     private final String code;
     private final HttpStatus httpStatus;
