@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -32,14 +35,19 @@ public class Workspace {
     @ColumnDefault("0")
     private int totalCnt;
 
+    @Column(name = "created_at", nullable = false)
+    @CreatedDate
+    private LocalDateTime createdAt;
+
     @Builder
-    private Workspace(User creator, boolean isMatched, int totalCnt) {
+    public Workspace(User creator, boolean isMatched, int totalCnt, LocalDateTime createdAt) {
         this.creator = creator;
         this.isMatched = isMatched;
         this.totalCnt = totalCnt;
+        this.createdAt = createdAt;
     }
 
-    public void finalAccept() {
+    public void acceptFinal() {
         this.isMatched = true;
     }
 }
