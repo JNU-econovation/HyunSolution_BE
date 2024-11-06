@@ -1,4 +1,4 @@
-package com.hyunsolution.dangu.participant;
+package com.hyunsolution.dangu.participant.domain;
 
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
