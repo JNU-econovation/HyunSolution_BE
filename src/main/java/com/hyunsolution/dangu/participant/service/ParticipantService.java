@@ -33,7 +33,7 @@ public class ParticipantService {
 
         // 방안에 모든 참가자가 "확정"버튼을 눌렀는지 확인
         for (Long participant : participantIds) {
-            boolean mathingCheck = participantRepository.isClickedById(participant);
+            boolean mathingCheck = participantRepository.existsByIdAndParticipantMatchTrue(participant);
             if (!mathingCheck) {
                 return;
             }
