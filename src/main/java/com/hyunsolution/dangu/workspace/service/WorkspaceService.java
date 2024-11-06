@@ -30,7 +30,7 @@ public class WorkspaceService {
         LocalDateTime dateFilter = LocalDateTime.now().minusDays(1);
         return workSpaceRepository.findAll().stream()
                 .filter(workspace -> !workspace.isMatched())
-                .filter(workspace -> workspace.getCreatedAt().isBefore(dateFilter)) //게임방 조회: 유지 시간은 24h
+                .filter(workspace -> workspace.getCreatedAt().isAfter(dateFilter)) //게임방 조회: 유지 시간은 24h
                 .map(workspace ->GetWorkspacesResponse.of(workspace.getId(), workspace.getCreator().getUid()))
                 .toList();
     }

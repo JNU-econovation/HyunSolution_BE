@@ -42,7 +42,7 @@ public class Chatting {
     private LocalDateTime createdAt;
 
     @Builder
-    public Chatting(Workspace workspace, User user, String content, LocalDateTime createdAt) {
+    private Chatting(Workspace workspace, User user, String content, LocalDateTime createdAt) {
         this.workspace = workspace;
         this.user = user;
         this.content = content;
