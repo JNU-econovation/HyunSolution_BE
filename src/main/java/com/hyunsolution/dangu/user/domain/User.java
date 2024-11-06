@@ -20,7 +20,7 @@ public class User {
     private String password;
 
     @Builder
-    public User(String uid, String password) {
+    private User(String uid, String password) {
         this.uid = uid;
         this.password = password;
     }

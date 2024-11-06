@@ -19,7 +19,7 @@ services:
 
   SpringServer: # Spring Boot 컨테이너
     container_name: hyunsolution-server  # Spring Boot 컨테이너 이름
-    image: leedahyun/hyunsolution_server:latest
+    image: ${DOCKER_IMAGE_NAME}
     ports:
       - "8080:8080"
     volumes:
