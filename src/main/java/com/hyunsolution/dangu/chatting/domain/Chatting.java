@@ -1,4 +1,4 @@
-package com.hyunsolution.dangu.chatting;
+package com.hyunsolution.dangu.chatting.domain;
 
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
@@ -34,7 +34,7 @@ public class Chatting {
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User user;
 
-    @Column(length = 255, nullable = false)
+    @Column( nullable = false)
     private String content;
 
     @Column(name = "created_at", nullable = false)
@@ -42,10 +42,9 @@ public class Chatting {
     private LocalDateTime createdAt;
 
     @Builder
-    private Chatting(Workspace workspace, User user, String content, LocalDateTime createdAt) {
+    private Chatting(Workspace workspace, User user, String content) {
         this.workspace = workspace;
         this.user = user;
         this.content = content;
-        this.createdAt = createdAt;
     }
 }
