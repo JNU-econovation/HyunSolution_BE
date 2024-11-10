@@ -94,13 +94,13 @@ jobs:
             cd /home/ubuntu  # docker-compose.yml 파일 위치로 이동
             
             # 기존 컨테이너 중지
-            docker-compose down
+            sudo docker-compose down
             
             # 사용 중인 이미지 제거 (캐시 무효화를 위해)
-            docker images -q ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }} | xargs -r sudo docker rmi
+            sudo docker images -q ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }} | xargs -r sudo docker rmi
             
             # 최신 이미지 pull
-            docker-compose pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }}
+            sudo docker-compose pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }}
             
             # 모든 서비스 다시 실행
-            docker-compose up -d
+            sudo docker-compose up -d
