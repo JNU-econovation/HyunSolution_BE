@@ -3,11 +3,11 @@ name: CI/CD Workflow for Develop
 on:
   # PR 작성 및 업데이트 시 CI 실행
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "deploy-#37" ]
 
   # develop 브랜치로의 푸시 시 CD 실행
   push:
-    branches: [ "develop" ]
+    branches: [ "deploy-#37" ]
 
 jobs:
   # 공통 설정 및 Gradle 빌드용 Setup job
@@ -82,30 +82,25 @@ jobs:
       - name: Push Docker image to Docker Hub
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }}
 
-      # SSH 비밀 키 설정
-      - name: Install SSH Key
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
       # EC2 서버에 Docker Compose로 배포
-      - name: Deploy on EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-        run: |
-          ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << EOF
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        id: deploy
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
             cd /home/ubuntu  # docker-compose.yml 파일 위치로 이동
-
+            
             # 기존 컨테이너 중지
-            docker-compose down
-
+            sudo docker-compose down
+            
             # 사용 중인 이미지 제거 (캐시 무효화를 위해)
-            docker images -q ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }} | xargs -r sudo docker rmi
-
+            sudo docker images -q ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }} | xargs -r sudo docker rmi
+            
             # 최신 이미지 pull
-            docker-compose pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }}
-
+            sudo docker-compose pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }}
+            
             # 모든 서비스 다시 실행
-            docker-compose up -d
-          EOF
+            sudo docker-compose up -d
