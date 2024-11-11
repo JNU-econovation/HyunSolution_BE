@@ -3,11 +3,11 @@ name: CI/CD Workflow for Develop
 on:
   # PR 작성 및 업데이트 시 CI 실행
   pull_request:
-    branches: [ "deploy-#37" ]
+    branches: [ "develop" ]
 
   # develop 브랜치로의 푸시 시 CD 실행
   push:
-    branches: [ "deploy-#37" ]
+    branches: [ "develop" ]
 
 jobs:
   # 공통 설정 및 Gradle 빌드용 Setup job
