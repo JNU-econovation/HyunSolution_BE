@@ -4,6 +4,4 @@ public record GetChattingsResponse(String content, Long chattingId, boolean isOw
     public static GetChattingsResponse of(String content, Long chattingId, boolean isOwn) {
         return new GetChattingsResponse(content, chattingId, isOwn);
     }
-
-
 }

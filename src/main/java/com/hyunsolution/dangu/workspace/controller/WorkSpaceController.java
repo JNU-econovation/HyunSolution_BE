@@ -4,7 +4,6 @@ import com.hyunsolution.dangu.common.apiResponse.ApiResponse;
 import com.hyunsolution.dangu.workspace.dto.response.GetWorkspacesResponse;
 import com.hyunsolution.dangu.workspace.service.WorkspaceService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

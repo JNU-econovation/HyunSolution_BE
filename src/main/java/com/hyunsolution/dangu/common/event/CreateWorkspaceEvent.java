@@ -8,11 +8,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateWorkspaceEvent extends DomainEvent{
+public class CreateWorkspaceEvent extends DomainEvent {
     private Workspace workspace;
     private User user;
 
-    public static CreateWorkspaceEvent of (Workspace workspace, User user) {
+    public static CreateWorkspaceEvent of(Workspace workspace, User user) {
         return new CreateWorkspaceEvent(workspace, user);
     }
 }

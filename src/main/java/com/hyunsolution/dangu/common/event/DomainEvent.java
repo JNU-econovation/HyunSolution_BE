@@ -1,8 +1,7 @@
 package com.hyunsolution.dangu.common.event;
 
-import lombok.Getter;
-
 import java.time.LocalDateTime;
+import lombok.Getter;
 
 @Getter
 public class DomainEvent {
