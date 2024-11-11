@@ -4,6 +4,7 @@ import com.hyunsolution.dangu.chatting.dto.response.GetChattingsResponse;
 import com.hyunsolution.dangu.chatting.service.ChattingService;
 import com.hyunsolution.dangu.common.apiResponse.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +20,8 @@ public class ChattingController {
     @GetMapping("/chattings/{workspaceId}")
     @Operation(summary = "채팅방에 대한 채팅을 조회한다.", description = "워크 스페이스(채팅방)에 대한 채팅을 조회한다.")
     public ApiResponse<List<GetChattingsResponse>> findByWorkspace(
-            @RequestHeader("Authorization") Long userId, @PathVariable Long workspaceId) {
+            @Parameter(hidden = true) @RequestHeader("Authorization") Long userId,
+            @PathVariable Long workspaceId) {
         List<GetChattingsResponse> responses =
                 chattingService.findByWorkspaceId(userId, workspaceId);
         return ApiResponse.success(responses);
