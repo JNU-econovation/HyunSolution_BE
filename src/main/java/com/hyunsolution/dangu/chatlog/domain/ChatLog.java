@@ -57,16 +57,12 @@ public class ChatLog {
      */
 
     @Builder
-    private ChatLog(
-            User user,
-            Workspace workspace,
-            LocalDateTime enterTime,
-            Boolean isOut,
-            Integer readCount) {
+    private ChatLog(User user, Workspace workspace, LocalDateTime enterTime, Integer readCount) {
         this.user = user;
         this.workspace = workspace;
         this.enterTime = enterTime;
-        this.isOut = isOut;
         this.readCount = readCount;
+        this.isOut = false;
+        this.readCount = 0;
     }
 }
