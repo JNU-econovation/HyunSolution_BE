@@ -2,12 +2,14 @@ package com.hyunsolution.dangu.participant.service;
 
 import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
+import com.hyunsolution.dangu.participant.dto.response.EnterChatRoomResponse;
+import com.hyunsolution.dangu.participant.exception.ParticipantNotFoundException;
+import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +25,9 @@ public class ParticipantService {
     public void changeMatching(Long id, Long workspaceId) {
         // 상태 변경
         Participant participantOptional =
-                participantRepository.findByUserIdAndWorkspaceId(id, workspaceId)
-                        .orElseThrow(()-> new NoSuchElementException("Participant not found"));
+                participantRepository
+                        .findByUserIdAndWorkspaceId(id, workspaceId)
+                        .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
 
         participantOptional.accept();
 
@@ -39,7 +42,33 @@ public class ParticipantService {
             }
         }
         // 게임방 테이블 속 매칭 결과를 true로 바꿈
-        Workspace workspace1 = workspaceRepository.findById(workspaceId).orElseThrow(()-> new NoSuchElementException("Workspace not found"));
+        Workspace workspace1 = workspaceRepository.findById(workspaceId).orElseThrow(()-> WorkspaceNotFoundException.EXCEPTION);
         workspace1.acceptFinal();
+    }
+
+    // 채팅방 입장 메시지 전송
+    public EnterChatRoomResponse sendEnteringMessage(Long id, Long workspaceId) {
+        User user = userRepository.findById(id).orElseThrow();
+        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
+        String message;
+        // 기존 채팅방에 1명(방장)만 존재하며 & 입장자가 방장이 아닐때 입장 메시지를 보낸다.
+        if (participantRepository.findByWorkspaceId(workspaceId).size() != 2
+                && workspaceRepository.findById(workspaceId).get().getCreator().getId() != id) {
+
+            // 입장자 participant 테이블에 저장
+            Participant participant =
+                    Participant.builder()
+                            .user(user)
+                            .workspace(workspace)
+                            .participantMatch(false)
+                            .build();
+            participantRepository.save(participant);
+
+            String userName = userRepository.findById(id).get().getUid();
+            message = userName + "님이 입장하셨습니다.";
+        } else {
+            message = "";
+        }
+        return new EnterChatRoomResponse(message);
     }
 }
