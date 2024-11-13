@@ -3,7 +3,7 @@ package com.hyunsolution.dangu.chatting.controller;
 import com.hyunsolution.dangu.chatting.dto.request.ChatMessageRequest;
 import com.hyunsolution.dangu.chatting.dto.response.ChatMessageDetailResponse;
 import com.hyunsolution.dangu.chatting.dto.response.ChatMessageResponse;
-import com.hyunsolution.dangu.chatting.dto.service.ChatService;
+import com.hyunsolution.dangu.chatting.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
