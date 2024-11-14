@@ -1,5 +1,6 @@
 package com.hyunsolution.dangu.chatting.service;
 
+import com.hyunsolution.dangu.chatlog.service.ChatlogService;
 import com.hyunsolution.dangu.chatting.domain.ChatRepository;
 import com.hyunsolution.dangu.chatting.domain.Chatting;
 import com.hyunsolution.dangu.chatting.dto.response.ChatMessageDetailResponse;
@@ -19,6 +20,7 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
+    private final ChatlogService chatlogService;
 
     @Transactional
     public ChatMessageDetailResponse sendMessage(Long chatRoomId, String message, Long userPk) {
@@ -26,11 +28,9 @@ public class ChatService {
         Workspace workspace =
                 workspaceRepository
                         .findById(chatRoomId)
-                        .orElseThrow(() ->ChatRoomNotFoundException.EXCEPTION);
+                        .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
         User user =
-                userRepository
-                        .findById(userPk)
-                        .orElseThrow(() -> UserNotFoundException.EXCEPTION);
+                userRepository.findById(userPk).orElseThrow(() -> UserNotFoundException.EXCEPTION);
 
         Chatting chatMessage =
                 Chatting.builder().workspace(workspace).user(user).content(message).build();
@@ -40,5 +40,13 @@ public class ChatService {
         ChatMessageDetailResponse detailResponse =
                 new ChatMessageDetailResponse(message, user.getUid(), chatMessage.getCreatedAt());
         return detailResponse;
+    }
+
+    @Transactional
+    public void readMessageCnt(Long chatRoomId, Long userPk) {
+        // 채팅방 나갈 시점에서의 메세지 개수 조회
+        int messageCnt = chatRepository.countMessageByRoomId(chatRoomId);
+        // chatlog 테이블 속 readCount 업데이트
+        chatlogService.updateReadCount(chatRoomId, userPk, messageCnt);
     }
 }
