@@ -93,14 +93,17 @@ jobs:
           script: |
             cd /home/${{ secrets.EC2_USER }} # docker-compose.yml 파일 위치로 이동
             
-            # 기존 컨테이너 중지
-            sudo docker-compose down
+            # Spring 서버 컨테이너 중지
+            sudo docker-compose stop SpringServer
             
-            # 사용 중인 이미지 제거 (캐시 무효화를 위해)
-            sudo docker images -q ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }} | xargs -r sudo docker rmi
+            # Spring 서버 컨테이너 삭제
+            sudo docker-compose rm -f SpringServer 
+            
+            # 사용 중인 이미지 강제 삭제 (캐시 무효화를 위해)
+            sudo docker images -q ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }} | xargs -r sudo docker rmi -f
             
             # 최신 이미지 pull
-            sudo docker-compose pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }}
+            sudo docker-compose pull SpringServer
             
-            # 모든 서비스 다시 실행
-            sudo docker-compose up -d
+            # Spring 서버만 다시 실행
+            sudo docker-compose up -d SpringServer
