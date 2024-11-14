@@ -21,4 +21,7 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
                     "SELECT p from Participant p join p.workspace w where p.user.id =:id and p.workspace.id=:workspaceId")
     Optional<Participant> findByUserIdAndWorkspaceId(
             @Param("id") Long id, @Param("workspaceId") Long workspaceId);
+
+
+    List<Participant> findByWorkspaceId(Long workspaceId);
 }
