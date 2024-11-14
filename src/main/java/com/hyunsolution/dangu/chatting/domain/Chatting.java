@@ -35,7 +35,7 @@ public class Chatting {
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User sender;
 
-    @Column( nullable = false)
+    @Column(nullable = false)
     private String content;
 
     @Column(name = "created_at", nullable = false)

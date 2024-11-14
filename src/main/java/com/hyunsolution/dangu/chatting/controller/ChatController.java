@@ -19,7 +19,7 @@ import org.springframework.stereotype.Controller;
 public class ChatController {
     private final ChatService chatService;
 
-    //채팅기능
+    // 채팅기능
     @MessageMapping("/chat/{chatRoomId}")
     @SendTo("/topic/chat/{chatRoomId}")
     public ChatMessageResponse sendChatMessage(

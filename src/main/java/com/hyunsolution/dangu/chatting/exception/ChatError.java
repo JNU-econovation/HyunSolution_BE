@@ -16,9 +16,7 @@ public enum ChatError implements BaseErrorCode {
     private final String message;
 
     @Override
-    public ExceptionDto getErrorReason(){
+    public ExceptionDto getErrorReason() {
         return ExceptionDto.builder().code(code).message(message).httpStatus(httpStatus).build();
     }
-
-
 }
