@@ -1,7 +1,10 @@
 package com.hyunsolution.dangu.workspace.domain;
 
+import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.user.domain.User;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,10 +12,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 public class Workspace {
 
     @Id
@@ -30,20 +35,17 @@ public class Workspace {
     @ColumnDefault("false")
     private boolean isMatched;
 
-    @Column(name = "total_cnt", nullable = false)
-    @ColumnDefault("0")
-    private int totalCnt;
-
     @Column(name = "created_at", nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "workspace", fetch = FetchType.LAZY)
+    private List<Participant> participants = new ArrayList<>();
+
     @Builder
-    public Workspace(User creator, boolean isMatched, int totalCnt, LocalDateTime createdAt) {
+    private Workspace(User creator, boolean isMatched, int totalCnt) {
         this.creator = creator;
         this.isMatched = isMatched;
-        this.totalCnt = totalCnt;
-        this.createdAt = createdAt;
     }
 
     public void acceptFinal() {

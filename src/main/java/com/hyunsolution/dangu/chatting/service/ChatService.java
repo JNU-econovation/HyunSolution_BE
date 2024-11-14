@@ -26,14 +26,12 @@ public class ChatService {
         Workspace workspace =
                 workspaceRepository
                         .findById(chatRoomId)
-                        .orElseThrow(() ->ChatRoomNotFoundException.EXCEPTION);
+                        .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
         User user =
-                userRepository
-                        .findById(userPk)
-                        .orElseThrow(() -> UserNotFoundException.EXCEPTION);
+                userRepository.findById(userPk).orElseThrow(() -> UserNotFoundException.EXCEPTION);
 
         Chatting chatMessage =
-                Chatting.builder().workspace(workspace).user(user).content(message).build();
+                Chatting.builder().workspace(workspace).sender(user).content(message).build();
 
         chatRepository.save(chatMessage);
 
