@@ -31,19 +31,14 @@ public class Workspace {
     @ColumnDefault("false")
     private boolean isMatched;
 
-    @Column(name = "total_cnt", nullable = false)
-    @ColumnDefault("0")
-    private int totalCnt;
-
     @Column(name = "created_at", nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;
 
     @Builder
-    public Workspace(User creator, boolean isMatched, int totalCnt, LocalDateTime createdAt) {
+    public Workspace(User creator, boolean isMatched, LocalDateTime createdAt) {
         this.creator = creator;
         this.isMatched = isMatched;
-        this.totalCnt = totalCnt;
         this.createdAt = createdAt;
     }
 
