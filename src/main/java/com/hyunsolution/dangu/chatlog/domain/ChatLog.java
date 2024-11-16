@@ -1,4 +1,4 @@
-package com.hyunsolution.dangu.chatlog;
+package com.hyunsolution.dangu.chatlog.domain;
 
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
@@ -13,7 +13,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Chatlog {
+public class ChatLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,16 +57,12 @@ public class Chatlog {
      */
 
     @Builder
-    private Chatlog(
-            User user,
-            Workspace workspace,
-            LocalDateTime enterTime,
-            Boolean isOut,
-            Integer readCount) {
+    private ChatLog(User user, Workspace workspace, LocalDateTime enterTime, Integer readCount) {
         this.user = user;
         this.workspace = workspace;
         this.enterTime = enterTime;
-        this.isOut = isOut;
         this.readCount = readCount;
+        this.isOut = false;
+        this.readCount = 0;
     }
 }

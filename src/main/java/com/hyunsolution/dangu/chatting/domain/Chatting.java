@@ -15,6 +15,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
+@Table(indexes = {@Index(name = "idx_workspace_id_id", columnList = "workspace_id, id DESC")})
 public class Chatting {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,9 +33,9 @@ public class Chatting {
             name = "user_id",
             nullable = false,
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User user;
+    private User sender;
 
-    @Column( nullable = false)
+    @Column(nullable = false)
     private String content;
 
     @Column(name = "created_at", nullable = false)
@@ -42,9 +43,9 @@ public class Chatting {
     private LocalDateTime createdAt;
 
     @Builder
-    private Chatting(Workspace workspace, User user, String content) {
+    private Chatting(Workspace workspace, User sender, String content) {
         this.workspace = workspace;
-        this.user = user;
+        this.sender = sender;
         this.content = content;
     }
 }

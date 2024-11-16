@@ -33,7 +33,7 @@ public class ChatService {
                 userRepository.findById(userPk).orElseThrow(() -> UserNotFoundException.EXCEPTION);
 
         Chatting chatMessage =
-                Chatting.builder().workspace(workspace).user(user).content(message).build();
+                Chatting.builder().workspace(workspace).sender(user).content(message).build();
 
         chatRepository.save(chatMessage);
 
