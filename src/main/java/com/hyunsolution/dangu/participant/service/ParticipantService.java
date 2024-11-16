@@ -8,8 +8,8 @@ import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
-import java.util.List;
 import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,11 +32,13 @@ public class ParticipantService {
         participantOptional.accept();
 
         // participant테이블에서 roomNumber로 들어온 숫자를 통해 누가 있는지 파악
-        List<Long> participantIds = participantRepository.findParticipantIdByWorkspaceId(workspaceId);
+        List<Long> participantIds =
+                participantRepository.findParticipantIdByWorkspaceId(workspaceId);
 
         // 방안에 모든 참가자가 "확정"버튼을 눌렀는지 확인
         for (Long participant : participantIds) {
-            boolean mathingCheck = participantRepository.existsByIdAndParticipantMatchTrue(participant);
+            boolean mathingCheck =
+                    participantRepository.existsByIdAndParticipantMatchTrue(participant);
             if (!mathingCheck) {
                 return;
             }
