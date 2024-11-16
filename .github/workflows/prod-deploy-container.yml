@@ -86,26 +86,23 @@ jobs:
       - name: Install SSH Key
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      # EC2 서버에 Docker Compose로 배포
-      - name: Deploy on EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-        run: |
-          ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << EOF
-            cd /home/ubuntu  # docker-compose.yml 파일 위치로 이동
-
-            # 기존 컨테이너 중지
-            docker-compose down
-
-            # 사용 중인 이미지 제거 (캐시 무효화를 위해)
-            docker images -q ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }} | xargs -r sudo docker rmi
-
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd /home/${{ secrets.EC2_USER }} # docker-compose.yml 파일 위치로 이동
+            
+            # Spring 서버 컨테이너 중지
+            sudo docker-compose stop SpringServer
+            
+            # Spring 서버 컨테이너 삭제
+            sudo docker-compose rm -f SpringServer 
+            
+            # 사용 중인 이미지 강제 삭제 (캐시 무효화를 위해)
+            sudo docker images -q ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }} | xargs -r sudo docker rmi -f
+            
             # 최신 이미지 pull
-            docker-compose pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE_NAME }}
-
-            # 모든 서비스 다시 실행
-            docker-compose up -d
-          EOF
+            sudo docker-compose pull SpringServer
+            
+            # Spring 서버만 다시 실행
+            sudo docker-compose up -d SpringServer

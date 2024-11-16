@@ -22,7 +22,7 @@ public class ParticipantController {
     private final WorkspaceRepository workspaceRepository;
     private final ParticipantService participantService;
 
-    // 사용자 매칭 버튼 클릭
+    //사용자 매칭 버튼 클릭
     @PostMapping("/participant/matching/{roomNumber}")
     public ApiResponse<?> matching(
             @Parameter(hidden = true) @RequestHeader("Authorization") Long id,

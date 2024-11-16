@@ -44,10 +44,7 @@ public class ParticipantService {
             }
         }
         // 게임방 테이블 속 매칭 결과를 true로 바꿈
-        Workspace workspace1 =
-                workspaceRepository
-                        .findById(workspaceId)
-                        .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
+        Workspace workspace1 = workspaceRepository.findById(workspaceId).orElseThrow(()-> WorkspaceNotFoundException.EXCEPTION);
         workspace1.acceptFinal();
     }
 
