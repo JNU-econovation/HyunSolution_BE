@@ -15,6 +15,7 @@ import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.user.exception.UserNotFoundException;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -46,7 +47,7 @@ public class ChattingService {
     public List<GetChatRoomsResponse> getChatRooms(Long userId) {
         List<Workspace> chatRooms = workspaceRepository.findByParticipantUserId(userId);
         return chatRooms.stream()
-                .filter(chatRoom -> chatRoom.getParticipants().size() > 1)
+                .sorted(Comparator.comparing(Workspace::getChatUpdateAt).reversed())
                 .map(
                         chatRoom ->
                                 GetChatRoomsResponse.of(
