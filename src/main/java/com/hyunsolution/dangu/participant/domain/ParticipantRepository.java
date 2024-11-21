@@ -13,12 +13,14 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
     List<Long> findParticipantIdByWorkspaceId(Long workspaceId);
 
     // ID별 매칭버튼 클릭 여부
-    Boolean existsByIdAndParticipantMatchTrue(long id);
+    @Query(
+            "select count(p) > 0 from Participant p where p.id in :ids and p.participantMatch = true")
+    Boolean existsByIdAndParticipantMatchTrue(List<Long> ids);
 
     // 개인 ID 찾기
     @Query(
             value =
-                    "SELECT p from Participant p join p.workspace w where p.user.id =:id and p.workspace.id=:workspaceId")
+                    "SELECT p from Participant p join fetch p.workspace w where p.user.id =:id and p.workspace.id=:workspaceId")
     Optional<Participant> findByUserIdAndWorkspaceId(
             @Param("id") Long id, @Param("workspaceId") Long workspaceId);
 
