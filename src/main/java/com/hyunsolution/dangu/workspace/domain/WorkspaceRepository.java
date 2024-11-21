@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 public interface WorkspaceRepository extends JpaRepository<Workspace, Long> {
     @EntityGraph(attributePaths = {"participants"})
     @Query(
-            "select w from Workspace w where exists (select 1 from Participant p where p.workspace = w and p.user.id = :userId) and w.chatUpdateAt is not null")
+            "select w from Workspace w where exists (select 1 from Participant p where p.workspace = w and p.user.id = :userId)")
     List<Workspace> findByParticipantUserId(Long userId);
 }
