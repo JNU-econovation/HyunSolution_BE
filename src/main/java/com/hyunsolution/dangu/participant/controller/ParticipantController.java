@@ -25,7 +25,7 @@ public class ParticipantController {
     @PostMapping("/participant/matching/{chatRoomId}")
     @Operation(summary = "참가자 매칭 수락/거절", description = "참가자 매칭 수락/거절 한다. (isMatch가 true이면 매칭 수락)" +
             "workspace의 매칭이 확정된 경우 참여자는 매칭 거절을 할 수 없다.")
-    public ApiResponse<?> matching(
+    public ApiResponse<Void> matching(
             @Parameter(hidden = true) @RequestHeader("Authorization") Long id,
             @PathVariable("chatRoomId") Long chatRoomId,
             @RequestBody UpdateParticipantMatchRequest request) {
