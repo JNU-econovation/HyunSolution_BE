@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 public class WorkSpaceController {
     private final WorkspaceService workSpaceService;
 
-    // TODO: @다다 님이 ApiResponse 개발하면 수정할 예정
     @PostMapping("/workspace")
     @Operation(summary = "워크스페이스(매칭) 생성", description = "워크스페이스(매칭)를 생성한다.")
     public ApiResponse<Void> addWorkSpace(
