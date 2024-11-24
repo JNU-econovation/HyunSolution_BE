@@ -31,27 +31,16 @@ public class Workspace {
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User creator;
 
-    @Column(name = "is_matched", nullable = false)
-    @ColumnDefault("false")
-    private boolean isMatched;
-
     @Column(name = "created_at", nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Column(name = "ch_update_at")
-    private LocalDateTime chatUpdateAt;
-
-    @OneToMany(mappedBy = "workspace", fetch = FetchType.LAZY)
-    private List<Participant> participants = new ArrayList<>();
+    //@OneToMany(mappedBy = "workspace", fetch = FetchType.LAZY)
+    //private List<Participant> participants = new ArrayList<>();
 
     @Builder
     private Workspace(User creator, boolean isMatched, int totalCnt) {
         this.creator = creator;
-        this.isMatched = isMatched;
     }
 
-    public void acceptFinal() {
-        this.isMatched = true;
-    }
 }
