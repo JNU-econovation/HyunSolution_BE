@@ -43,8 +43,8 @@ public class ChatRoom {
         this.isMatched = isMatched;
     }
 
-    public void accept() {
-        this.isMatched=true;
+    public void acceptFinal() {
+        this.isMatched = true;
     }
 
 }
