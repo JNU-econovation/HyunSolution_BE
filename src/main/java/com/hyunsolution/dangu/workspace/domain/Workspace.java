@@ -1,6 +1,6 @@
 package com.hyunsolution.dangu.workspace.domain;
 
-import com.hyunsolution.dangu.participant.domain.Participant;
+import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.user.domain.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,7 +10,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -35,12 +34,11 @@ public class Workspace {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    //@OneToMany(mappedBy = "workspace", fetch = FetchType.LAZY)
-    //private List<Participant> participants = new ArrayList<>();
+    @OneToMany(mappedBy = "workspace", fetch = FetchType.LAZY)
+    private List<ChatRoom> chatRooms = new ArrayList<>();
 
     @Builder
     private Workspace(User creator, boolean isMatched, int totalCnt) {
         this.creator = creator;
     }
-
 }
