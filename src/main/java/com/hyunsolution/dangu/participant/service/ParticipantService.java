@@ -1,5 +1,6 @@
 package com.hyunsolution.dangu.participant.service;
 
+import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import com.hyunsolution.dangu.participant.dto.request.UpdateParticipantMatchRequest;
@@ -8,6 +9,7 @@ import com.hyunsolution.dangu.participant.exception.AlreadyMatchedException;
 import com.hyunsolution.dangu.participant.exception.ParticipantNotFoundException;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
+import com.hyunsolution.dangu.user.exception.UserNotFoundException;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
@@ -23,6 +25,34 @@ public class ParticipantService {
     private final UserRepository userRepository;
     private final WorkspaceRepository workspaceRepository;
 
+    //채팅방 생성
+    @Transactional
+    public EnterChatRoomResponse addChatRoom(Long userId, Long workspaceId) {
+        User user = userRepository.findById(userId).orElseThrow(()-> UserNotFoundException.EXCEPTION);
+        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(()-> WorkspaceNotFoundException.EXCEPTION);
+        //채팅방 생성
+        ChatRoom chatRoom = ChatRoom.builder().workspace(workspace).isMatched(false).build();
+        return addParticipant(user, chatRoom);
+    }
+
+    //참여자에 입장자 추가
+    @Transactional
+    public EnterChatRoomResponse addParticipant(User user, ChatRoom chatRoom) {
+        //참여자 추가
+        Participant participant =
+                Participant.builder()
+                        .user(user)
+                        .chatRoom(chatRoom)
+                        .participantMatch(false)
+                        .gameAttend(false)
+                        .build();
+        participantRepository.save(participant);
+
+        return new EnterChatRoomResponse(chatRoom.getId());
+    }
+
+
+
     @Transactional
     public void updateMatching(Long id, Long chatRoomId, UpdateParticipantMatchRequest request) {
         // 1. 참가자 조회
@@ -32,7 +62,7 @@ public class ParticipantService {
                         .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
 
         // 2. 이미 매칭된 상태인지 확인
-        if (participant.getWorkspace().isMatched()) {
+        if (participant.getChatRoom().isMatched()) {
             throw AlreadyMatchedException.EXCEPTION;
         }
 
@@ -61,7 +91,10 @@ public class ParticipantService {
         workspace.acceptFinal();
     }
 
+
+
     // 채팅방 입장 메시지 전송
+    /* //입장 메시지는 기획에 없어 일단 주석처리해둠
     public EnterChatRoomResponse sendEnteringMessage(Long id, Long workspaceId) {
         User user = userRepository.findById(id).orElseThrow();
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
@@ -86,4 +119,6 @@ public class ParticipantService {
         }
         return new EnterChatRoomResponse(message);
     }
+
+     */
 }

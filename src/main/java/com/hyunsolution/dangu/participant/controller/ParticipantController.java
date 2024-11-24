@@ -39,11 +39,13 @@ public class ParticipantController {
     }
 
     // 사용자 채팅방 입장
-    @PostMapping("/participant/{roomNumber}")
+    @PostMapping("/participant/{workspaceId}")
+    @Operation(summary = "사용자 채팅방 생성/입장",
+                description = "사용자가 채팅버튼을 클릭할시 채팅방이 생성된다."
+                    + "다시 해당 게임방 목록을 클릭할 시 기존 채팅방으로 유입된다.(해당 부분은 수정해야함)")
     public ApiResponse<EnterChatRoomResponse> enterChatRoom(
-            @Parameter(hidden = true) @RequestHeader("Authorization") Long id,
-            @PathVariable("roomNumber") Long workspaceId) {
-        EnterChatRoomResponse response = participantService.sendEnteringMessage(id, workspaceId);
+            @Parameter(hidden = true) @RequestHeader("Authorization") Long id, @PathVariable("workspaceId") Long workspaceId) {
+        EnterChatRoomResponse response = participantService.addChatRoom(id, workspaceId);
         return ApiResponse.success(response);
     }
 }
