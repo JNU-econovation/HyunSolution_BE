@@ -9,8 +9,8 @@ import org.springframework.data.repository.query.Param;
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
 
     // 같은 방에 있는 사람들 id(PK) 리스트
-    @Query(value = "SELECT p.id FROM Participant p WHERE p.workspace.id=:workspaceId")
-    List<Long> findParticipantIdByWorkspaceId(Long workspaceId);
+    @Query(value = "SELECT p.id FROM Participant p WHERE p.chatRoom.id=:chatRoomId")
+    List<Long> findParticipantIdByChatRoomId(Long chatRoomId);
 
     // ID별 매칭버튼 클릭 여부
     @Query(
@@ -20,9 +20,9 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
     // 개인 ID 찾기
     @Query(
             value =
-                    "SELECT p from Participant p join fetch p.workspace w where p.user.id =:id and p.workspace.id=:workspaceId")
-    Optional<Participant> findByUserIdAndWorkspaceId(
-            @Param("id") Long id, @Param("workspaceId") Long workspaceId);
+                    "SELECT p from Participant p join fetch p.chatRoom c where p.user.id =:id and p.chatRoom.id=:chatRoomId")
+    Optional<Participant> findByUserIdAndChatRoomId(
+            @Param("id") Long id, @Param("chatRoomId") Long chatRoomId);
 
     List<Participant> findByWorkspaceId(Long workspaceId);
 }
