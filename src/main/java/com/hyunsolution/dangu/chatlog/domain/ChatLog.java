@@ -2,7 +2,6 @@ package com.hyunsolution.dangu.chatlog.domain;
 
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.user.domain.User;
-import com.hyunsolution.dangu.workspace.domain.Workspace;
 import java.time.LocalDateTime;
 import javax.persistence.*;
 import lombok.AccessLevel;
