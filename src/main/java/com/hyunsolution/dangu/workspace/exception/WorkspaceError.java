@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum WorkspaceError implements BaseErrorCode {
-    WORKSPACE_NOT_FOUND("WORKSAPCE_400_1", HttpStatus.BAD_REQUEST, "채팅방을 찾을 수 없습니다.");
+    WORKSPACE_NOT_FOUND("WORKSAPCE_400_1", HttpStatus.BAD_REQUEST, "게임방을 찾을 수 없습니다.");
 
     private final String code;
     private final HttpStatus httpStatus;
