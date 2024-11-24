@@ -1,16 +1,16 @@
 package com.hyunsolution.dangu.workspace.service;
 
-import com.hyunsolution.dangu.common.event.CreateWorkspaceEvent;
 import com.hyunsolution.dangu.common.event.EventPublish;
-import com.hyunsolution.dangu.common.event.Events;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.user.exception.UserNotFoundException;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import com.hyunsolution.dangu.workspace.dto.response.GetWorkspacesResponse;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,20 +27,12 @@ public class WorkspaceService {
         User user = userRepository.findById(id).orElseThrow(() -> UserNotFoundException.EXCEPTION);
         Workspace workSpace = Workspace.builder().creator(user).build();
         workSpaceRepository.save(workSpace);
-        Events.raise(CreateWorkspaceEvent.of(workSpace, user));
     }
 
     public List<GetWorkspacesResponse> getWorkspaces() {
         LocalDateTime dateFilter = LocalDateTime.now().minusDays(1);
-        return workSpaceRepository.findAll().stream()
-                .filter(workspace -> !workspace.isMatched())
-                .filter(
-                        workspace ->
-                                workspace.getCreatedAt().isAfter(dateFilter)) // 게임방 조회: 유지 시간은 24h
-                .map(
-                        workspace ->
-                                GetWorkspacesResponse.of(
-                                        workspace.getId(), workspace.getCreator().getUid()))
-                .toList();
+        return workSpaceRepository.findAll().stream().filter(workspace -> workspace.getChatRooms().stream().allMatch(chatRoom -> !chatRoom.isMatched())) // 매칭대기방과 연관된 모든 채팅방의 isMatched가 false인 것
+                .filter(workspace -> workspace.getCreatedAt().isAfter(dateFilter)) // 게임방 조회: 유지 시간은 24h
+                .map(workspace -> GetWorkspacesResponse.of(workspace.getId(), workspace.getCreator().getUid())).toList();
     }
 }

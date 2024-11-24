@@ -1,6 +1,11 @@
 package com.hyunsolution.dangu.chatRoom.domain;
 
+import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,13 +13,10 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EntityListeners(AuditingEntityListener.class)//존재 이유 찾아보기
+@EntityListeners(AuditingEntityListener.class)
 public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,12 +32,15 @@ public class ChatRoom {
     @Column(name = "is_matched", nullable = false)
     private boolean isMatched;
 
-    @Column(name = "created_at",nullable = false)
+    @Column(name = "created_at", nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;
 
     @Column(name = "ch_update_at")
     private LocalDateTime chatUpdateAt;
+
+    @OneToMany(mappedBy = "chatRoom", fetch = FetchType.LAZY)
+    private List<Participant> participants = new ArrayList<>();
 
     @Builder
     private ChatRoom(Workspace workspace, boolean isMatched) {
@@ -46,5 +51,4 @@ public class ChatRoom {
     public void acceptFinal() {
         this.isMatched = true;
     }
-
 }
