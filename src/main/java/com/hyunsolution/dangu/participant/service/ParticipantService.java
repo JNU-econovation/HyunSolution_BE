@@ -2,7 +2,9 @@ package com.hyunsolution.dangu.participant.service;
 
 import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
+import com.hyunsolution.dangu.participant.dto.request.UpdateParticipantMatchRequest;
 import com.hyunsolution.dangu.participant.dto.response.EnterChatRoomResponse;
+import com.hyunsolution.dangu.participant.exception.AlreadyMatchedException;
 import com.hyunsolution.dangu.participant.exception.ParticipantNotFoundException;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
@@ -22,33 +24,41 @@ public class ParticipantService {
     private final WorkspaceRepository workspaceRepository;
 
     @Transactional
-    public void changeMatching(Long id, Long workspaceId) {
-        // 상태 변경
-        Participant participantOptional =
+    public void updateMatching(Long id, Long chatRoomId, UpdateParticipantMatchRequest request) {
+        // 1. 참가자 조회
+        Participant participant =
                 participantRepository
-                        .findByUserIdAndWorkspaceId(id, workspaceId)
+                        .findByUserIdAndWorkspaceId(id, chatRoomId)
                         .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
 
-        participantOptional.accept();
+        // 2. 이미 매칭된 상태인지 확인
+        if (participant.getWorkspace().isMatched()) {
+            throw AlreadyMatchedException.EXCEPTION;
+        }
 
-        // participant테이블에서 roomNumber로 들어온 숫자를 통해 누가 있는지 파악
+        // 3. 참가자의 매칭 상태 업데이트
+        participant.updateParticipantMatch(request.isMatch());
+
+        // 4. 매칭 요청 처리
+        if (request.isMatch() && allParticipantsMatched(chatRoomId)) {
+            finalizeWorkspaceMatching(chatRoomId);
+        }
+    }
+
+    // 모든 참가자가 매칭되었는지 확인
+    private boolean allParticipantsMatched(Long workspaceId) {
         List<Long> participantIds =
                 participantRepository.findParticipantIdByWorkspaceId(workspaceId);
+        return participantRepository.existsByIdAndParticipantMatchTrue(participantIds);
+    }
 
-        // 방안에 모든 참가자가 "확정"버튼을 눌렀는지 확인
-        for (Long participant : participantIds) {
-            boolean mathingCheck =
-                    participantRepository.existsByIdAndParticipantMatchTrue(participant);
-            if (!mathingCheck) {
-                return;
-            }
-        }
-        // 게임방 테이블 속 매칭 결과를 true로 바꿈
-        Workspace workspace1 =
+    // 워크스페이스의 매칭을 최종 확정
+    private void finalizeWorkspaceMatching(Long workspaceId) {
+        Workspace workspace =
                 workspaceRepository
                         .findById(workspaceId)
                         .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
-        workspace1.acceptFinal();
+        workspace.acceptFinal();
     }
 
     // 채팅방 입장 메시지 전송

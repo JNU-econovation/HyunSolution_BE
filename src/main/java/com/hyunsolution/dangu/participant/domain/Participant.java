@@ -42,7 +42,7 @@ public class Participant {
         this.participantMatch = participantMatch;
     }
 
-    public void accept() {
-        this.participantMatch = true;
+    public void updateParticipantMatch(boolean isMatch) {
+        this.participantMatch = isMatch;
     }
 }
