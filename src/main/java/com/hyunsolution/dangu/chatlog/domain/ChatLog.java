@@ -1,5 +1,6 @@
 package com.hyunsolution.dangu.chatlog.domain;
 
+import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import java.time.LocalDateTime;
@@ -29,10 +30,10 @@ public class ChatLog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "workspace_id",
+            name = "chatRoom_id",
             nullable = false,
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Workspace workspace;
+    private ChatRoom chatRoom;
 
     @Column(name = "enter_time", nullable = true)
     private LocalDateTime enterTime;
@@ -57,11 +58,10 @@ public class ChatLog {
      */
 
     @Builder
-    private ChatLog(User user, Workspace workspace, LocalDateTime enterTime, Integer readCount) {
+    private ChatLog(User user, ChatRoom chatRoom, LocalDateTime enterTime) {
         this.user = user;
-        this.workspace = workspace;
+        this.chatRoom = chatRoom;
         this.enterTime = enterTime;
-        this.readCount = readCount;
         this.isOut = false;
         this.readCount = 0;
     }
