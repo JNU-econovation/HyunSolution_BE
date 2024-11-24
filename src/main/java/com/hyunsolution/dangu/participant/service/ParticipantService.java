@@ -1,6 +1,8 @@
 package com.hyunsolution.dangu.participant.service;
 
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
+import com.hyunsolution.dangu.chatRoom.domain.ChatRoomRepository;
+import com.hyunsolution.dangu.chatRoom.exception.ChatRoomNotFoundException;
 import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import com.hyunsolution.dangu.participant.dto.request.UpdateParticipantMatchRequest;
@@ -24,6 +26,7 @@ public class ParticipantService {
     private final ParticipantRepository participantRepository;
     private final UserRepository userRepository;
     private final WorkspaceRepository workspaceRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     //채팅방 생성
     @Transactional
@@ -58,7 +61,7 @@ public class ParticipantService {
         // 1. 참가자 조회
         Participant participant =
                 participantRepository
-                        .findByUserIdAndWorkspaceId(id, chatRoomId)
+                        .findByUserIdAndChatRoomId(id, chatRoomId)
                         .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
 
         // 2. 이미 매칭된 상태인지 확인
@@ -76,19 +79,19 @@ public class ParticipantService {
     }
 
     // 모든 참가자가 매칭되었는지 확인
-    private boolean allParticipantsMatched(Long workspaceId) {
+    private boolean allParticipantsMatched(Long chatRoomId) {
         List<Long> participantIds =
-                participantRepository.findParticipantIdByWorkspaceId(workspaceId);
+                participantRepository.findParticipantIdByChatRoomId(chatRoomId);
         return participantRepository.existsByIdAndParticipantMatchTrue(participantIds);
     }
 
-    // 워크스페이스의 매칭을 최종 확정
-    private void finalizeWorkspaceMatching(Long workspaceId) {
-        Workspace workspace =
-                workspaceRepository
-                        .findById(workspaceId)
-                        .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
-        workspace.acceptFinal();
+    // 채팅방의 매칭을 최종 확정
+    private void finalizeWorkspaceMatching(Long chatRoomId) {
+        ChatRoom chatRoom =
+                chatRoomRepository
+                        .findById(chatRoomId)
+                        .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
+        chatRoom.acceptFinal();
     }
 
 
