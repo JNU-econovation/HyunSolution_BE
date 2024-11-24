@@ -6,16 +6,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ChattingRepository extends JpaRepository<Chatting, Long> {
-    @Query("select c from Chatting c where c.workspace.id =:workspaceId")
-    List<Chatting> findByWorkspaceId(Long workspaceId);
+    @Query("select c from Chatting c where c.chatRoom.id =:chatRoomId")
+    List<Chatting> findByChatRoomId(Long chatRoomId);
 
     @Query(
             value =
                     "select c.content from chatting c where c.id = ("
-                            + "select MAX(id) from chatting where workspace_id = :workspaceId)",
+                            + "select MAX(id) from chatting where chatRoom_Id = :chatRoomId)",
             nativeQuery = true)
-    String findLastChattingContentByWorkspaceId(Long workspaceId);
+    String findLastChattingContentByChatRoomId(Long chatRoomId);
 
-    @Query("SELECT COUNT(c) FROM ChatLog c WHERE c.workspace.id=:roomId")
-    int countMessageByRoomId(@Param("roomId") Long roomId);
+    @Query("SELECT COUNT(c) FROM ChatLog c WHERE c.chatRoom.id=:chatRoomId")
+    int countMessageByChatRoomId(@Param("chatRoomId") Long chatRoomId);
 }

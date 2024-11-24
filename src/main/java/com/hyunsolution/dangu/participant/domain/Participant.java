@@ -2,7 +2,6 @@ package com.hyunsolution.dangu.participant.domain;
 
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.user.domain.User;
-import com.hyunsolution.dangu.workspace.domain.Workspace;
 import javax.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

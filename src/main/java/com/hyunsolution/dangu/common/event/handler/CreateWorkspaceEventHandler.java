@@ -2,7 +2,7 @@ package com.hyunsolution.dangu.common.event.handler;
 
 import com.hyunsolution.dangu.chatlog.domain.ChatLog;
 import com.hyunsolution.dangu.chatlog.domain.ChatLogRepository;
-import com.hyunsolution.dangu.common.event.CreateWorkspaceEvent;
+import com.hyunsolution.dangu.common.event.CreateChatRoomEvent;
 import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import java.time.LocalDateTime;
@@ -18,20 +18,20 @@ public class CreateWorkspaceEventHandler {
     private final ParticipantRepository participantRepository;
     private final ChatLogRepository chatLogRepository;
 
-    @TransactionalEventListener(classes = CreateWorkspaceEvent.class)
+    @TransactionalEventListener(classes = CreateChatRoomEvent.class)
     @Async
     @Transactional
-    public void handle(CreateWorkspaceEvent event) {
+    public void handle(CreateChatRoomEvent event) {
         ChatLog chatLog =
                 ChatLog.builder()
-                        .workspace(event.getWorkspace())
+                        .chatRoom(event.getChatRoom())
                         .enterTime(LocalDateTime.now())
                         .user(event.getUser())
                         .build();
         chatLogRepository.save(chatLog);
 
         Participant participant =
-                Participant.builder().workspace(event.getWorkspace()).user(event.getUser()).build();
+                Participant.builder().chatRoom(event.getChatRoom()).user(event.getUser()).build();
 
         participantRepository.save(participant);
     }

@@ -1,5 +1,7 @@
 package com.hyunsolution.dangu.chatting.service;
 
+import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
+import com.hyunsolution.dangu.chatRoom.domain.ChatRoomRepository;
 import com.hyunsolution.dangu.chatlog.domain.ChatLog;
 import com.hyunsolution.dangu.chatlog.domain.ChatLogRepository;
 import com.hyunsolution.dangu.chatlog.exception.ChatLogNotFoundException;
@@ -13,7 +15,6 @@ import com.hyunsolution.dangu.chatting.exception.ChatRoomNotFoundException;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.user.exception.UserNotFoundException;
-import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import java.util.Comparator;
 import java.util.List;
@@ -29,10 +30,11 @@ public class ChattingService {
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
     private final ChatlogService chatlogService;
+    private final ChatRoomRepository chatRoomRepository;
 
     @Transactional(readOnly = true)
     public List<GetChattingsResponse> getChattings(Long loginUserId, Long chatRoomId) {
-        List<Chatting> chattings = chattingRepository.findByWorkspaceId(chatRoomId);
+        List<Chatting> chattings = chattingRepository.findByChatRoomId(chatRoomId);
         return chattings.stream()
                 .map(
                         chatting -> {
@@ -45,9 +47,9 @@ public class ChattingService {
 
     @Transactional(readOnly = true)
     public List<GetChatRoomsResponse> getChatRooms(Long userId) {
-        List<Workspace> chatRooms = workspaceRepository.findByParticipantUserId(userId);
+        List<ChatRoom> chatRooms = chatRoomRepository.findByParticipantUserId(userId);
         return chatRooms.stream()
-                .sorted(Comparator.comparing(Workspace::getChatUpdateAt).reversed())
+                .sorted(Comparator.comparing(ChatRoom::getChatUpdateAt).reversed())
                 .map(
                         chatRoom ->
                                 GetChatRoomsResponse.of(
@@ -62,7 +64,7 @@ public class ChattingService {
         return loginUserId.equals(chattingUserId);
     }
 
-    private List<String> getOtherPerson(Workspace chatRoom, Long loginUserId) {
+    private List<String> getOtherPerson(ChatRoom chatRoom, Long loginUserId) {
         return chatRoom.getParticipants().stream()
                 .filter(participant -> !participant.getUser().getId().equals(loginUserId))
                 .map(participant -> participant.getUser().getUid())
@@ -70,15 +72,15 @@ public class ChattingService {
     }
 
     private String getLastMessage(Long chatRoomId) {
-        return chattingRepository.findLastChattingContentByWorkspaceId(chatRoomId);
+        return chattingRepository.findLastChattingContentByChatRoomId(chatRoomId);
     }
 
     private int getUnReadCount(Long chatRoomId, Long userId) {
         ChatLog chatLog =
                 chatLogRepository
-                        .findByWorkspaceIdAndUserId(chatRoomId, userId)
+                        .findByChatRoomIdAndUserId(chatRoomId, userId)
                         .orElseThrow(() -> ChatLogNotFoundException.EXCEPTION);
-        int total = chattingRepository.findByWorkspaceId(chatRoomId).size();
+        int total = chattingRepository.findByChatRoomId(chatRoomId).size();
         int read = chatLog.getReadCount();
         return total - read;
     }
@@ -86,15 +88,15 @@ public class ChattingService {
     @Transactional
     public ChatMessageDetailResponse sendMessage(Long chatRoomId, String message, Long userPk) {
 
-        Workspace workspace =
-                workspaceRepository
+        ChatRoom chatRoom =
+                chatRoomRepository
                         .findById(chatRoomId)
                         .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
         User user =
                 userRepository.findById(userPk).orElseThrow(() -> UserNotFoundException.EXCEPTION);
 
         Chatting chatMessage =
-                Chatting.builder().workspace(workspace).sender(user).content(message).build();
+                Chatting.builder().chatRoom(chatRoom).sender(user).content(message).build();
 
         chattingRepository.save(chatMessage);
 
@@ -106,7 +108,7 @@ public class ChattingService {
     @Transactional
     public void readMessageCnt(Long chatRoomId, Long userPk) {
         // 채팅방 나갈 시점에서의 메세지 개수 조회
-        int messageCnt = chattingRepository.countMessageByRoomId(chatRoomId);
+        int messageCnt = chattingRepository.countMessageByChatRoomId(chatRoomId);
         // chatlog 테이블 속 readCount 업데이트
         chatlogService.updateReadCount(chatRoomId, userPk, messageCnt);
     }
