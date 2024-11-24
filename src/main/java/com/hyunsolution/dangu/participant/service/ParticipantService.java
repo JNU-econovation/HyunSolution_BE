@@ -3,6 +3,8 @@ package com.hyunsolution.dangu.participant.service;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoomRepository;
 import com.hyunsolution.dangu.chatRoom.exception.ChatRoomNotFoundException;
+import com.hyunsolution.dangu.common.event.CreateChatRoomEvent;
+import com.hyunsolution.dangu.common.event.Events;
 import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import com.hyunsolution.dangu.participant.dto.request.UpdateParticipantMatchRequest;
@@ -28,20 +30,21 @@ public class ParticipantService {
     private final WorkspaceRepository workspaceRepository;
     private final ChatRoomRepository chatRoomRepository;
 
-    //채팅방 생성
+    // 채팅방 생성
     @Transactional
     public EnterChatRoomResponse addChatRoom(Long userId, Long workspaceId) {
         User user = userRepository.findById(userId).orElseThrow(()-> UserNotFoundException.EXCEPTION);
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(()-> WorkspaceNotFoundException.EXCEPTION);
         //채팅방 생성
         ChatRoom chatRoom = ChatRoom.builder().workspace(workspace).isMatched(false).build();
+        Events.raise(CreateChatRoomEvent.of(chatRoom, user));
         return addParticipant(user, chatRoom);
     }
 
-    //참여자에 입장자 추가
+    // 참여자에 입장자 추가
     @Transactional
     public EnterChatRoomResponse addParticipant(User user, ChatRoom chatRoom) {
-        //참여자 추가
+        // 참여자 추가
         Participant participant =
                 Participant.builder()
                         .user(user)
@@ -53,8 +56,6 @@ public class ParticipantService {
 
         return new EnterChatRoomResponse(chatRoom.getId());
     }
-
-
 
     @Transactional
     public void updateMatching(Long id, Long chatRoomId, UpdateParticipantMatchRequest request) {
@@ -80,8 +81,7 @@ public class ParticipantService {
 
     // 모든 참가자가 매칭되었는지 확인
     private boolean allParticipantsMatched(Long chatRoomId) {
-        List<Long> participantIds =
-                participantRepository.findParticipantIdByChatRoomId(chatRoomId);
+        List<Long> participantIds = participantRepository.findParticipantIdByChatRoomId(chatRoomId);
         return participantRepository.existsByIdAndParticipantMatchTrue(participantIds);
     }
 
@@ -94,8 +94,6 @@ public class ParticipantService {
         chatRoom.acceptFinal();
     }
 
-
-
     // 채팅방 입장 메시지 전송
     /* //입장 메시지는 기획에 없어 일단 주석처리해둠
     public EnterChatRoomResponse sendEnteringMessage(Long id, Long workspaceId) {
@@ -104,7 +102,7 @@ public class ParticipantService {
         String message;
         // 기존 채팅방에 1명(방장)만 존재하며 & 입장자가 방장이 아닐때 입장 메시지를 보낸다.
         if (participantRepository.findByWorkspaceId(workspaceId).size() != 2
-                && workspaceRepository.findById(workspaceId).get().getCreator().getId() != id) {
+                && workspaceRepository.findByIdF(workspaceId).get().getCreator().getId() != id) {
 
             // 입장자 participant 테이블에 저장
             Participant participant =
