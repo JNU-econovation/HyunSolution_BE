@@ -1,9 +1,11 @@
 package com.hyunsolution.dangu.participant.controller;
 
+import com.hyunsolution.dangu.chatRoom.Service.ChatRoomService;
 import com.hyunsolution.dangu.common.apiResponse.ApiResponse;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import com.hyunsolution.dangu.participant.dto.request.UpdateParticipantMatchRequest;
 import com.hyunsolution.dangu.participant.dto.response.EnterChatRoomResponse;
+import com.hyunsolution.dangu.participant.dto.response.GetMatchStatusResponse;
 import com.hyunsolution.dangu.participant.service.ParticipantService;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
@@ -20,6 +22,7 @@ public class ParticipantController {
     private final UserRepository userRepository;
     private final WorkspaceRepository workspaceRepository;
     private final ParticipantService participantService;
+    private final ChatRoomService chatRoomService;
 
     // 사용자 매칭 버튼 클릭
     @PostMapping("/participant/matching/{chatRoomId}")
@@ -44,8 +47,21 @@ public class ParticipantController {
                 description = "사용자가 채팅버튼을 클릭할시 채팅방이 생성된다."
                     + "다시 해당 게임방 목록을 클릭할 시 기존 채팅방으로 유입된다.(해당 부분은 수정해야함)")
     public ApiResponse<EnterChatRoomResponse> enterChatRoom(
-            @Parameter(hidden = true) @RequestHeader("Authorization") Long id, @PathVariable("workspaceId") Long workspaceId) {
+            @Parameter(hidden = true) @RequestHeader("Authorization") Long id,
+            @PathVariable("workspaceId") Long workspaceId) {
         EnterChatRoomResponse response = participantService.addChatRoom(id, workspaceId);
         return ApiResponse.success(response);
     }
+
+    // 매칭 현황 조회
+    @GetMapping("/participant/{chatRoomId}/matchStatus")
+    @Operation(summary = "매칭 현황 조회",
+                description = "매칭 현황 버튼 클릭 시 방장과 방문자 각각의 매칭 신청 여부, 게임방의 매칭 확정 여부를 boolean값으로 반환한다.")
+    public ApiResponse<GetMatchStatusResponse> getMatchStatus(
+            @Parameter(hidden = true) @RequestHeader("Authorization") Long id,
+            @PathVariable("chatRoomId") Long chatRoomId){
+        GetMatchStatusResponse response = participantService.getMatchResult(id, chatRoomId);
+        return ApiResponse.success(response);
+    }
+
 }

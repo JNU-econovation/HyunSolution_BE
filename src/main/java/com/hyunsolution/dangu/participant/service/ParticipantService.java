@@ -9,6 +9,7 @@ import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import com.hyunsolution.dangu.participant.dto.request.UpdateParticipantMatchRequest;
 import com.hyunsolution.dangu.participant.dto.response.EnterChatRoomResponse;
+import com.hyunsolution.dangu.participant.dto.response.GetMatchStatusResponse;
 import com.hyunsolution.dangu.participant.exception.AlreadyMatchedException;
 import com.hyunsolution.dangu.participant.exception.ParticipantNotFoundException;
 import com.hyunsolution.dangu.user.domain.User;
@@ -100,6 +101,27 @@ public class ParticipantService {
                         .findById(workspaceId)
                         .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
         workspace.acceptMatchingFinal();
+    }
+
+    //매칭 현황 조회
+    public GetMatchStatusResponse getMatchResult(Long userId, Long chatRoomId) {
+        List<Participant> participants= participantRepository.findByChatRoomId(chatRoomId);
+
+        boolean owner=false;
+        boolean counterpart=false;
+        for (Participant participant : participants) {
+            //id와 해당 채팅방에 있는 사람들을 비교 같으면 owner
+            if (participant.getId().equals(userId)) {
+                owner = participant.isParticipantMatch();
+                // userId와 다르면 counterpart의 상태에 삽입
+            }else{
+                counterpart = participant.isParticipantMatch();
+            }
+        }
+        //전체 게임방의 매칭 결과
+        boolean matchResult= chatRoomRepository.findById(chatRoomId).get().getWorkspace().isMatched();
+
+        return new GetMatchStatusResponse(counterpart, owner, matchResult);
     }
 
     // 채팅방 입장 메시지 전송
