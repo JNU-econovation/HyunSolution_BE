@@ -1,7 +1,7 @@
 package com.hyunsolution.dangu.chatting.domain;
 
+import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.user.domain.User;
-import com.hyunsolution.dangu.workspace.domain.Workspace;
 import java.time.LocalDateTime;
 import javax.persistence.*;
 import lombok.AccessLevel;
@@ -15,7 +15,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-@Table(indexes = {@Index(name = "idx_workspace_id_id", columnList = "workspace_id, id DESC")})
+@Table(indexes = {@Index(name = "idx_chatRoom_id_id", columnList = "chatRoom_id, id DESC")})
 public class Chatting {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,10 +23,10 @@ public class Chatting {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "workspace_id",
+            name = "chatRoom_id",
             nullable = false,
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Workspace workspace;
+    private ChatRoom chatRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
@@ -43,8 +43,8 @@ public class Chatting {
     private LocalDateTime createdAt;
 
     @Builder
-    private Chatting(Workspace workspace, User sender, String content) {
-        this.workspace = workspace;
+    private Chatting(ChatRoom chatRoom, User sender, String content) {
+        this.chatRoom = chatRoom;
         this.sender = sender;
         this.content = content;
     }

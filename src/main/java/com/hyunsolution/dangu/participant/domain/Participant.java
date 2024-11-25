@@ -1,7 +1,7 @@
 package com.hyunsolution.dangu.participant.domain;
 
+import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.user.domain.User;
-import com.hyunsolution.dangu.workspace.domain.Workspace;
 import javax.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,20 +26,25 @@ public class Participant {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "workspace_id",
+            name = "chatRoom_id",
             nullable = false,
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Workspace workspace;
+    private ChatRoom chatRoom;
 
     @Column(name = "participant_match", nullable = false)
     @ColumnDefault("false")
     private boolean participantMatch;
 
+    @Column(name = "game_attend", nullable = false)
+    @ColumnDefault("false")
+    private boolean gameAttend;
+
     @Builder
-    private Participant(User user, Workspace workspace, boolean participantMatch) {
+    private Participant(User user, ChatRoom chatRoom, boolean participantMatch, boolean gameAttend) {
         this.user = user;
-        this.workspace = workspace;
+        this.chatRoom = chatRoom;
         this.participantMatch = participantMatch;
+        this.gameAttend = gameAttend;
     }
 
     public void updateParticipantMatch(boolean isMatch) {

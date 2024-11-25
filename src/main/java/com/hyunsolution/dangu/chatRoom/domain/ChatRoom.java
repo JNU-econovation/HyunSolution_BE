@@ -1,7 +1,7 @@
-package com.hyunsolution.dangu.workspace.domain;
+package com.hyunsolution.dangu.chatRoom.domain;
 
-import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
-import com.hyunsolution.dangu.user.domain.User;
+import com.hyunsolution.dangu.participant.domain.Participant;
+import com.hyunsolution.dangu.workspace.domain.Workspace;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,18 +18,17 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class Workspace {
-
+public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "user_id",
+            name = "workspace_id",
             nullable = false,
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User creator;
+    private Workspace workspace;
 
     @Column(name = "is_matched", nullable = false)
     @ColumnDefault("false")
@@ -39,15 +38,19 @@ public class Workspace {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "workspace", fetch = FetchType.LAZY)
-    private List<ChatRoom> chatRooms = new ArrayList<>();
+    @Column(name = "ch_update_at")
+    private LocalDateTime chatUpdateAt;
+
+    @OneToMany(mappedBy = "chatRoom", fetch = FetchType.LAZY)
+    private List<Participant> participants = new ArrayList<>();
 
     @Builder
-    private Workspace(User creator, boolean isMatched, int totalCnt) {
-        this.creator = creator;
+    private ChatRoom(Workspace workspace, boolean isMatched) {
+        this.workspace = workspace;
+        this.isMatched = isMatched;
     }
 
-    public void acceptMatchingFinal() {
+    public void acceptMatching() {
         this.isMatched = true;
     }
 }
