@@ -14,7 +14,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
-public class CreateWorkspaceEventHandler {
+public class CreateChatRoomEventHandler {
     private final ParticipantRepository participantRepository;
     private final ChatLogRepository chatLogRepository;
 
@@ -22,17 +22,35 @@ public class CreateWorkspaceEventHandler {
     @Async
     @Transactional
     public void handle(CreateChatRoomEvent event) {
-        ChatLog chatLog =
+        ChatLog chatLogVisitor =
                 ChatLog.builder()
                         .chatRoom(event.getChatRoom())
                         .enterTime(LocalDateTime.now())
-                        .user(event.getUser())
+                        .user(event.getVisitor())
                         .build();
-        chatLogRepository.save(chatLog);
 
-        Participant participant =
-                Participant.builder().chatRoom(event.getChatRoom()).user(event.getUser()).build();
+        chatLogRepository.save(chatLogVisitor);
+        ChatLog chatLogCreator =
+                ChatLog.builder()
+                        .chatRoom(event.getChatRoom())
+                        .enterTime(LocalDateTime.now())
+                        .user(event.getCreator())
+                        .build();
 
-        participantRepository.save(participant);
+        chatLogRepository.save(chatLogCreator);
+
+        Participant creator =
+                Participant.builder()
+                        .chatRoom(event.getChatRoom())
+                        .user(event.getCreator())
+                        .build();
+        participantRepository.save(creator);
+        Participant visitor =
+                Participant.builder()
+                        .chatRoom(event.getChatRoom())
+                        .user(event.getVisitor())
+                        .build();
+
+        participantRepository.save(visitor);
     }
 }

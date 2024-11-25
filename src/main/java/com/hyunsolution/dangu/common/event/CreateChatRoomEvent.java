@@ -10,9 +10,10 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateChatRoomEvent extends DomainEvent {
     private ChatRoom chatRoom;
-    private User user;
+    private User visitor;
+    private User creator;
 
-    public static CreateChatRoomEvent of(ChatRoom chatRoom, User user) {
-        return new CreateChatRoomEvent(chatRoom, user);
+    public static CreateChatRoomEvent of(ChatRoom chatRoom, User visitor, User creator) {
+        return new CreateChatRoomEvent(chatRoom, visitor, creator);
     }
 }
