@@ -31,7 +31,7 @@ public class WorkspaceService {
 
     public List<GetWorkspacesResponse> getWorkspaces() {
         LocalDateTime dateFilter = LocalDateTime.now().minusDays(1);
-        return workSpaceRepository.findAll().stream().filter(workspace -> workspace.getChatRooms().stream().allMatch(chatRoom -> !chatRoom.isMatched())) // 매칭대기방과 연관된 모든 채팅방의 isMatched가 false인 것
+        return workSpaceRepository.findAll().stream().filter(workspace->!workspace.isMatched())
                 .filter(workspace -> workspace.getCreatedAt().isAfter(dateFilter)) // 게임방 조회: 유지 시간은 24h
                 .map(workspace -> GetWorkspacesResponse.of(workspace.getId(), workspace.getCreator().getUid())).toList();
     }
