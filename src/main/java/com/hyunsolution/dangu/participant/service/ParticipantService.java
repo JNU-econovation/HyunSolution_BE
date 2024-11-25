@@ -33,27 +33,21 @@ public class ParticipantService {
     // 채팅방 생성
     @Transactional
     public EnterChatRoomResponse addChatRoom(Long userId, Long workspaceId) {
-        User user = userRepository.findById(userId).orElseThrow(()-> UserNotFoundException.EXCEPTION);
-        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(()-> WorkspaceNotFoundException.EXCEPTION);
-        //채팅방 생성
-        ChatRoom chatRoom = ChatRoom.builder().workspace(workspace).isMatched(false).build();
-        Events.raise(CreateChatRoomEvent.of(chatRoom, user));
-        return addParticipant(user, chatRoom);
-    }
+        User visitor =
+                userRepository.findById(userId).orElseThrow(() -> UserNotFoundException.EXCEPTION);
+        Long creatorId = workspaceRepository.findById(workspaceId).get().getCreator().getId();
+        User creator =
+                userRepository
+                        .findById(creatorId)
+                        .orElseThrow(() -> UserNotFoundException.EXCEPTION);
+        Workspace workspace =
+                workspaceRepository
+                        .findById(workspaceId)
+                        .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
 
-    // 참여자에 입장자 추가
-    @Transactional
-    public EnterChatRoomResponse addParticipant(User user, ChatRoom chatRoom) {
-        // 참여자 추가
-        Participant participant =
-                Participant.builder()
-                        .user(user)
-                        .chatRoom(chatRoom)
-                        .participantMatch(false)
-                        .gameAttend(false)
-                        .build();
-        participantRepository.save(participant);
-
+        // 채팅방 생성
+        ChatRoom chatRoom = ChatRoom.builder().workspace(workspace).build();
+        Events.raise(CreateChatRoomEvent.of(chatRoom, visitor, creator));
         return new EnterChatRoomResponse(chatRoom.getId());
     }
 
@@ -66,16 +60,20 @@ public class ParticipantService {
                         .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
 
         // 2. 이미 매칭된 상태인지 확인
-        if (participant.getChatRoom().isMatched()) {
+        if (participant.getChatRoom().getWorkspace().isMatched()) {
             throw AlreadyMatchedException.EXCEPTION;
         }
 
         // 3. 참가자의 매칭 상태 업데이트
         participant.updateParticipantMatch(request.isMatch());
 
+        // workspaceId 변수 저장
+        Long workspaceId = chatRoomRepository.findById(chatRoomId).get().getWorkspace().getId();
+
         // 4. 매칭 요청 처리
         if (request.isMatch() && allParticipantsMatched(chatRoomId)) {
-            finalizeWorkspaceMatching(chatRoomId);
+            finalizeChatRoomMatching(chatRoomId);
+            finalizeWorkspaceMatching(workspaceId);
         }
     }
 
@@ -86,12 +84,21 @@ public class ParticipantService {
     }
 
     // 채팅방의 매칭을 최종 확정
-    private void finalizeWorkspaceMatching(Long chatRoomId) {
+    private void finalizeChatRoomMatching(Long chatRoomId) {
         ChatRoom chatRoom =
                 chatRoomRepository
                         .findById(chatRoomId)
                         .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
-        chatRoom.acceptFinal();
+        chatRoom.acceptMatching();
+    }
+
+    // 채팅방의 매칭을 최종 확정
+    private void finalizeWorkspaceMatching(Long workspaceId) {
+        Workspace workspace =
+                workspaceRepository
+                        .findById(workspaceId)
+                        .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
+        workspace.acceptMatchingFinal();
     }
 
     // 채팅방 입장 메시지 전송
@@ -109,7 +116,6 @@ public class ParticipantService {
                     Participant.builder()
                             .user(user)
                             .workspace(workspace)
-                            .participantMatch(false)
                             .build();
             participantRepository.save(participant);
 
