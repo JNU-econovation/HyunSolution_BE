@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -30,6 +31,10 @@ public class Workspace {
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User creator;
 
+    @Column(name = "is_matched", nullable = false)
+    @ColumnDefault("false")
+    private boolean isMatched;
+
     @Column(name = "created_at", nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;
@@ -40,5 +45,9 @@ public class Workspace {
     @Builder
     private Workspace(User creator, boolean isMatched, int totalCnt) {
         this.creator = creator;
+    }
+
+    public void acceptMatchingFinal() {
+        this.isMatched = true;
     }
 }
