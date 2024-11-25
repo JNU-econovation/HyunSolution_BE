@@ -47,6 +47,7 @@ public class ParticipantService {
 
         // 채팅방 생성
         ChatRoom chatRoom = ChatRoom.builder().workspace(workspace).build();
+        chatRoom = chatRoomRepository.save(chatRoom);
         Events.raise(CreateChatRoomEvent.of(chatRoom, visitor, creator));
         return new EnterChatRoomResponse(chatRoom.getId());
     }
