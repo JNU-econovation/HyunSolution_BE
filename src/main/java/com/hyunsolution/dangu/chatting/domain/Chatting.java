@@ -2,12 +2,15 @@ package com.hyunsolution.dangu.chatting.domain;
 
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.user.domain.User;
+
+import java.awt.*;
 import java.time.LocalDateTime;
 import javax.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -41,6 +44,11 @@ public class Chatting {
     @Column(name = "created_at", nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @ColumnDefault("SYSTEM")
+    private MessageType messageType;
 
     @Builder
     private Chatting(ChatRoom chatRoom, User sender, String content) {
