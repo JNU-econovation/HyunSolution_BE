@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -30,6 +31,7 @@ public class ChatRoom {
     private Workspace workspace;
 
     @Column(name = "is_matched", nullable = false)
+    @ColumnDefault("false")
     private boolean isMatched;
 
     @Column(name = "created_at", nullable = false)
@@ -48,7 +50,7 @@ public class ChatRoom {
         this.isMatched = isMatched;
     }
 
-    public void acceptFinal() {
+    public void acceptMatching() {
         this.isMatched = true;
     }
 }
