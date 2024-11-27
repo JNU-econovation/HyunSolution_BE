@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GetMatchStatusResponse {
     private boolean counterpart;
-    private boolean owner;
+    private boolean myself;
     private boolean matchResult;
 }
