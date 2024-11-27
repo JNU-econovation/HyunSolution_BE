@@ -4,6 +4,7 @@ import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoomRepository;
 import com.hyunsolution.dangu.chatRoom.exception.ChatRoomNotFoundException;
 import com.hyunsolution.dangu.common.event.CreateChatRoomEvent;
+import com.hyunsolution.dangu.common.event.EventPublish;
 import com.hyunsolution.dangu.common.event.Events;
 import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
@@ -18,7 +19,9 @@ import com.hyunsolution.dangu.user.exception.UserNotFoundException;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
+
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,10 +36,11 @@ public class ParticipantService {
 
     // 채팅방 생성
     @Transactional
+    @EventPublish
     public EnterChatRoomResponse addChatRoom(Long userId, Long workspaceId) {
         User visitor =
                 userRepository.findById(userId).orElseThrow(() -> UserNotFoundException.EXCEPTION);
-        Long creatorId = workspaceRepository.findById(workspaceId).get().getCreator().getId();
+        Long creatorId = workspaceRepository.findById(workspaceId).orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION).getCreator().getId();
         User creator =
                 userRepository
                         .findById(creatorId)
@@ -70,7 +74,7 @@ public class ParticipantService {
         participant.updateParticipantMatch(request.isMatch());
 
         // workspaceId 변수 저장
-        Long workspaceId = chatRoomRepository.findById(chatRoomId).get().getWorkspace().getId();
+        Long workspaceId = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION).getWorkspace().getId();
 
         // 4. 매칭 요청 처리
         if (request.isMatch() && allParticipantsMatched(chatRoomId)) {
@@ -103,28 +107,27 @@ public class ParticipantService {
         workspace.acceptMatchingFinal();
     }
 
-    //매칭 현황 조회
+    // 매칭 현황 조회
     public GetMatchStatusResponse getMatchResult(Long userId, Long chatRoomId) {
-        List<Participant> participants= participantRepository.findByChatRoomId(chatRoomId);
+        List<Participant> participants = participantRepository.findByChatRoomId(chatRoomId);
 
-        boolean owner=false;
-        boolean counterpart=false;
+        //자신의 매칭 신청 현황
+        boolean myself = participantRepository.findById(userId).orElseThrow(() -> UserNotFoundException.EXCEPTION).isParticipantMatch();
+        //상대방의 매칭 신청 현황
+        boolean counterpart = false;
         for (Participant participant : participants) {
             //id와 해당 채팅방에 있는 사람들을 비교 같으면 owner
-            if (participant.getId().equals(userId)) {
-                owner = participant.isParticipantMatch();
-                // userId와 다르면 counterpart의 상태에 삽입
-            }else{
+            if (!participant.getId().equals(userId)) {
                 counterpart = participant.isParticipantMatch();
             }
         }
         //전체 게임방의 매칭 결과
-        boolean matchResult= chatRoomRepository.findById(chatRoomId).get().getWorkspace().isMatched();
-
-        return new GetMatchStatusResponse(counterpart, owner, matchResult);
+        boolean matchResult = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION).getWorkspace().isMatched();
+        return new GetMatchStatusResponse(counterpart, myself, matchResult);
     }
+    //매칭 현황 조회
 
-    // 채팅방 입장 메시지 전송
+// 채팅방 입장 메시지 전송
     /* //입장 메시지는 기획에 없어 일단 주석처리해둠
     public EnterChatRoomResponse sendEnteringMessage(Long id, Long workspaceId) {
         User user = userRepository.findById(id).orElseThrow();
