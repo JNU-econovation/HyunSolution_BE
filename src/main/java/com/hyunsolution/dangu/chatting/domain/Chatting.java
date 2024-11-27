@@ -47,7 +47,7 @@ public class Chatting {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @ColumnDefault("SYSTEM")
+    @ColumnDefault("TEXT")
     private MessageType messageType;
 
     @Builder
