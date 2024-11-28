@@ -1,6 +1,4 @@
 package com.hyunsolution.dangu.participant.controller;
-
-import com.hyunsolution.dangu.chatRoom.Service.ChatRoomService;
 import com.hyunsolution.dangu.common.apiResponse.ApiResponse;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import com.hyunsolution.dangu.participant.dto.request.UpdateParticipantMatchRequest;
@@ -22,7 +20,6 @@ public class ParticipantController {
     private final UserRepository userRepository;
     private final WorkspaceRepository workspaceRepository;
     private final ParticipantService participantService;
-    private final ChatRoomService chatRoomService;
 
     // 사용자 매칭 버튼 클릭
     @PostMapping("/participant/matching/{chatRoomId}")
