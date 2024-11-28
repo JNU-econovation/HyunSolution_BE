@@ -1,6 +1,7 @@
 package com.hyunsolution.dangu.workspace.domain;
 
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
+import com.hyunsolution.dangu.common.BaseEntity;
 import com.hyunsolution.dangu.user.domain.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class Workspace {
+public class Workspace extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
