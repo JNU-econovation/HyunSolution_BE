@@ -3,6 +3,8 @@ package com.hyunsolution.dangu.participant.service;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoomRepository;
 import com.hyunsolution.dangu.chatRoom.exception.ChatRoomNotFoundException;
+import com.hyunsolution.dangu.chatting.domain.Chatting;
+import com.hyunsolution.dangu.chatting.domain.MessageType;
 import com.hyunsolution.dangu.common.event.CreateChatRoomEvent;
 import com.hyunsolution.dangu.common.event.EventPublish;
 import com.hyunsolution.dangu.common.event.Events;
@@ -73,6 +75,11 @@ public class ParticipantService {
         // 3. 참가자의 매칭 상태 업데이트
         participant.updateParticipantMatch(request.isMatch());
 
+        //참가자 매칭 신청 메시지 저장
+        String uid= participantRepository.findById(id).orElseThrow(() -> ParticipantNotFoundException.EXCEPTION).getUser().getUid();
+        ChatRoom chatRoom= chatRoomRepository.findById(chatRoomId).orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
+        Chatting.builder().chatRoom(chatRoom).content(uid+"님이 매칭을 신청하셨습니다.").messageType(MessageType.SYSTEM).build();
+
         // workspaceId 변수 저장
         Long workspaceId = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION).getWorkspace().getId();
 
@@ -95,7 +102,12 @@ public class ParticipantService {
                 chatRoomRepository
                         .findById(chatRoomId)
                         .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
+        //채팅방상태 확정으로 변경
         chatRoom.acceptMatching();
+
+        //매칭 확정 메시지 저장
+        Chatting.builder().chatRoom(chatRoom).content("매칭되었습니다.").messageType(MessageType.SYSTEM).build();
+
     }
 
     // 채팅방의 매칭을 최종 확정
