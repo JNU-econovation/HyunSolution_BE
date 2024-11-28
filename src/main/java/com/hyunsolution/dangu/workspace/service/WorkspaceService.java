@@ -35,6 +35,7 @@ public class WorkspaceService {
     public List<GetWorkspacesResponse> getWorkspaces() {
         LocalDateTime dateFilter = LocalDateTime.now().minusDays(1);
         return workSpaceRepository.findAll().stream().filter(workspace->!workspace.isMatched())
+                .filter(workspace -> !workspace.isDeleted()) //softDelete가 되지 않은 게임방 조회
                 .filter(workspace -> workspace.getCreatedAt().isAfter(dateFilter)) // 게임방 조회: 유지 시간은 24h
                 .map(workspace -> GetWorkspacesResponse.of(workspace.getId(), workspace.getCreator().getUid())).toList();
     }
