@@ -8,6 +8,8 @@ public interface WorkspaceRepository extends JpaRepository<Workspace, Long> {
     @Query(
             "select w from Workspace w where w.isMatched = false and w.createdAt > current_timestamp - 1")
     List<Workspace> findUnmatchedAndCreatedWithinLastDay();
-    @Query("select count(w.id) > 0 from Workspace w where w.creator.id = :creatorId and w.createdAt > current_timestamp - 1")
+
+    @Query(
+            "select count(w.id) > 0 from Workspace w where w.creator.id = :creatorId and w.createdAt > current_timestamp - 1")
     Boolean existsByCreatorId(Long creatorId);
 }
