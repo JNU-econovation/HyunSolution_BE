@@ -11,6 +11,7 @@ import com.hyunsolution.dangu.workspace.dto.response.GetWorkspacesResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ public class WorkspaceService {
     private final WorkspaceRepository workSpaceRepository;
     private final UserRepository userRepository;
 
+    //게임방 등록
     @Transactional
     @EventPublish
     public void addWorkspace(Long id) {
@@ -29,10 +31,20 @@ public class WorkspaceService {
         workSpaceRepository.save(workSpace);
     }
 
+    //게임방 목록 조회
     public List<GetWorkspacesResponse> getWorkspaces() {
         LocalDateTime dateFilter = LocalDateTime.now().minusDays(1);
         return workSpaceRepository.findAll().stream().filter(workspace->!workspace.isMatched())
                 .filter(workspace -> workspace.getCreatedAt().isAfter(dateFilter)) // 게임방 조회: 유지 시간은 24h
                 .map(workspace -> GetWorkspacesResponse.of(workspace.getId(), workspace.getCreator().getUid())).toList();
     }
+
+    //게임방 등록 취소
+    @Transactional
+    public void deleteWorkspace(Long workspaceId) {
+        Workspace workspace= workSpaceRepository.findById(workspaceId).orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
+        workspace.isDeleted();
+    }
+
+
 }
