@@ -8,6 +8,7 @@ import com.hyunsolution.dangu.chatlog.exception.ChatLogNotFoundException;
 import com.hyunsolution.dangu.chatlog.service.ChatlogService;
 import com.hyunsolution.dangu.chatting.domain.Chatting;
 import com.hyunsolution.dangu.chatting.domain.ChattingRepository;
+import com.hyunsolution.dangu.chatting.domain.MessageType;
 import com.hyunsolution.dangu.chatting.dto.response.ChatMessageDetailResponse;
 import com.hyunsolution.dangu.chatting.dto.response.GetChatRoomsResponse;
 import com.hyunsolution.dangu.chatting.dto.response.GetChattingsResponse;
@@ -101,13 +102,13 @@ public class ChattingService {
                 userRepository.findById(userPk).orElseThrow(() -> UserNotFoundException.EXCEPTION);
 
         Chatting chatMessage =
-                Chatting.builder().chatRoom(chatRoom).sender(user).content(message).build();
+                Chatting.builder().chatRoom(chatRoom).sender(user).content(message).messageType(MessageType.TEXT).build();
 
         chattingRepository.save(chatMessage);
 
 
         ChatMessageDetailResponse detailResponse =
-                new ChatMessageDetailResponse(message, user.getUid(), chatMessage.getCreatedAt());
+                new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT);
         return detailResponse;
     }
 
