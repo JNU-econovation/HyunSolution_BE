@@ -21,6 +21,7 @@ public class WorkspaceService {
     @Transactional
     public void addWorkspace(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> UserNotFoundException.EXCEPTION);
+        validateAlreadyExists(user.getId());
         Workspace workSpace = Workspace.builder().creator(user).build();
         workSpaceRepository.save(workSpace);
     }
@@ -35,6 +36,13 @@ public class WorkspaceService {
                                         isOwn(loginUserId, workspace)))
                 .toList();
     }
+
+    private void validateAlreadyExists(Long creatorId) {
+        if (Boolean.TRUE.equals(workSpaceRepository.existsByCreatorId(creatorId))) {
+            throw WorkspaceAlreadyExistsException.EXCEPTION;
+        }
+    }
+
     private boolean isOwn(Long loginUserId, Workspace workspace) {
         return loginUserId.equals(workspace.getCreator().getId());
     }
