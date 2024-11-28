@@ -35,7 +35,7 @@ public class Chatting extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "user_id",
-            nullable = false,
+            nullable = true,
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private User sender;
 
@@ -52,9 +52,10 @@ public class Chatting extends BaseEntity {
     private MessageType messageType;
 
     @Builder
-    private Chatting(ChatRoom chatRoom, User sender, String content) {
+    private Chatting(ChatRoom chatRoom, User sender, String content, MessageType messageType) {
         this.chatRoom = chatRoom;
         this.sender = sender;
         this.content = content;
+        this.messageType = messageType;
     }
 }
