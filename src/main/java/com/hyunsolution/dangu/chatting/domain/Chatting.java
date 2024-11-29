@@ -3,7 +3,6 @@ package com.hyunsolution.dangu.chatting.domain;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.common.BaseEntity;
 import com.hyunsolution.dangu.user.domain.User;
-
 import java.awt.*;
 import java.time.LocalDateTime;
 import javax.persistence.*;

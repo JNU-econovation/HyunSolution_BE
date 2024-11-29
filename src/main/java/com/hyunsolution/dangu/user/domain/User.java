@@ -1,8 +1,7 @@
 package com.hyunsolution.dangu.user.domain;
 
-import javax.persistence.*;
-
 import com.hyunsolution.dangu.common.BaseEntity;
+import javax.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

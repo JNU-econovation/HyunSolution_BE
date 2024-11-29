@@ -16,10 +16,7 @@ import com.hyunsolution.dangu.chatting.exception.ChatRoomNotFoundException;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.user.exception.UserNotFoundException;
-import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
-
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -96,16 +93,15 @@ public class ChattingService {
                 chatRoomRepository
                         .findById(chatRoomId)
                         .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
-        chatRoom.updateChatTime();//채팅 입력 시간에 따른 채팅방 ch_update_at 업데이트
+        chatRoom.updateChatTime(); // 채팅 입력 시간에 따른 채팅방 ch_update_at 업데이트
 
         User user =
                 userRepository.findById(userPk).orElseThrow(() -> UserNotFoundException.EXCEPTION);
 
         Chatting chatMessage =
-                Chatting.builder().chatRoom(chatRoom).sender(user).content(message).messageType(MessageType.TEXT).build();
+                Chatting.builder().chatRoom(chatRoom).sender(user).content(message).build();
 
         chattingRepository.save(chatMessage);
-
 
         ChatMessageDetailResponse detailResponse =
                 new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT);

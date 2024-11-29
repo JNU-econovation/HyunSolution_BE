@@ -41,7 +41,8 @@ public class Participant extends BaseEntity {
     private boolean gameAttend;
 
     @Builder
-    private Participant(User user, ChatRoom chatRoom, boolean participantMatch, boolean gameAttend) {
+    private Participant(
+            User user, ChatRoom chatRoom, boolean participantMatch, boolean gameAttend) {
         this.user = user;
         this.chatRoom = chatRoom;
         this.participantMatch = participantMatch;

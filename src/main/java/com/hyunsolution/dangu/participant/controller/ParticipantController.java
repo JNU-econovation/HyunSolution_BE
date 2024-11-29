@@ -1,4 +1,5 @@
 package com.hyunsolution.dangu.participant.controller;
+
 import com.hyunsolution.dangu.common.apiResponse.ApiResponse;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import com.hyunsolution.dangu.participant.dto.request.UpdateParticipantMatchRequest;
@@ -40,9 +41,11 @@ public class ParticipantController {
 
     // 사용자 채팅방 입장
     @PostMapping("/participant/{workspaceId}")
-    @Operation(summary = "사용자 채팅방 생성/입장",
-                description = "사용자가 채팅버튼을 클릭할시 채팅방이 생성된다."
-                    + "다시 해당 게임방 목록을 클릭할 시 기존 채팅방으로 유입된다.(해당 부분은 수정해야함)")
+    @Operation(
+            summary = "사용자 채팅방 생성/입장",
+            description =
+                    "사용자가 채팅버튼을 클릭할시 채팅방이 생성된다."
+                            + "다시 해당 게임방 목록을 클릭할 시 기존 채팅방으로 유입된다.(해당 부분은 수정해야함)")
     public ApiResponse<EnterChatRoomResponse> enterChatRoom(
             @Parameter(hidden = true) @RequestHeader("Authorization") Long id,
             @PathVariable("workspaceId") Long workspaceId) {
@@ -52,13 +55,13 @@ public class ParticipantController {
 
     // 매칭 현황 조회
     @GetMapping("/participant/{chatRoomId}/matchStatus")
-    @Operation(summary = "매칭 현황 조회",
-                description = "매칭 현황 버튼 클릭 시 방장과 방문자 각각의 매칭 신청 여부, 게임방의 매칭 확정 여부를 boolean값으로 반환한다.")
+    @Operation(
+            summary = "매칭 현황 조회",
+            description = "매칭 현황 버튼 클릭 시 방장과 방문자 각각의 매칭 신청 여부, 게임방의 매칭 확정 여부를 boolean값으로 반환한다.")
     public ApiResponse<GetMatchStatusResponse> getMatchStatus(
             @Parameter(hidden = true) @RequestHeader("Authorization") Long id,
-            @PathVariable("chatRoomId") Long chatRoomId){
+            @PathVariable("chatRoomId") Long chatRoomId) {
         GetMatchStatusResponse response = participantService.getMatchResult(id, chatRoomId);
         return ApiResponse.success(response);
     }
-
 }

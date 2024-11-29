@@ -7,14 +7,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
-
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class ChatRoom extends BaseEntity {
@@ -53,7 +53,7 @@ public class ChatRoom extends BaseEntity {
         this.isMatched = true;
     }
 
-    public void updateChatTime(){
+    public void updateChatTime() {
         this.chatUpdateAt = LocalDateTime.now();
     }
 }
