@@ -28,4 +28,11 @@ public class WorkSpaceController {
         List<GetWorkspacesResponse> responses = workSpaceService.getWorkspaces();
         return ApiResponse.success(responses);
     }
+
+    @PostMapping("/workspace/{workspaceId}")
+    @Operation(summary = "게임방 등록 취소", description = "게임방을 등록한 방장은 게임방 등록을 취소할 수 있다.")
+    public ApiResponse<Void> deleteWorkspace(@PathVariable Long workspaceId) {
+        workSpaceService.deleteWorkspace(workspaceId);
+        return ApiResponse.successResponseNull();
+    }
 }

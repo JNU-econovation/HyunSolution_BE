@@ -8,6 +8,7 @@ import com.hyunsolution.dangu.chatlog.exception.ChatLogNotFoundException;
 import com.hyunsolution.dangu.chatlog.service.ChatlogService;
 import com.hyunsolution.dangu.chatting.domain.Chatting;
 import com.hyunsolution.dangu.chatting.domain.ChattingRepository;
+import com.hyunsolution.dangu.chatting.domain.MessageType;
 import com.hyunsolution.dangu.chatting.dto.response.ChatMessageDetailResponse;
 import com.hyunsolution.dangu.chatting.dto.response.GetChatRoomsResponse;
 import com.hyunsolution.dangu.chatting.dto.response.GetChattingsResponse;
@@ -92,6 +93,8 @@ public class ChattingService {
                 chatRoomRepository
                         .findById(chatRoomId)
                         .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
+        chatRoom.updateChatTime(); // 채팅 입력 시간에 따른 채팅방 ch_update_at 업데이트
+
         User user =
                 userRepository.findById(userPk).orElseThrow(() -> UserNotFoundException.EXCEPTION);
 
@@ -101,7 +104,7 @@ public class ChattingService {
         chattingRepository.save(chatMessage);
 
         ChatMessageDetailResponse detailResponse =
-                new ChatMessageDetailResponse(message, user.getUid(), chatMessage.getCreatedAt());
+                new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT);
         return detailResponse;
     }
 

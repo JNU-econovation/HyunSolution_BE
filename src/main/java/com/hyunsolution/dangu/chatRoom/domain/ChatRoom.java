@@ -1,24 +1,23 @@
 package com.hyunsolution.dangu.chatRoom.domain;
 
+import com.hyunsolution.dangu.common.BaseEntity;
 import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class ChatRoom {
+public class ChatRoom extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -52,5 +51,9 @@ public class ChatRoom {
 
     public void acceptMatching() {
         this.isMatched = true;
+    }
+
+    public void updateChatTime() {
+        this.chatUpdateAt = LocalDateTime.now();
     }
 }
