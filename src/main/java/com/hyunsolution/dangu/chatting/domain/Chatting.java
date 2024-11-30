@@ -27,7 +27,7 @@ public class Chatting extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "chatRoom_id",
+            name = "chat_room_id",
             nullable = false,
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private ChatRoom chatRoom;
