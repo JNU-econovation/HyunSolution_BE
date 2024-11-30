@@ -18,7 +18,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-@Table(indexes = {@Index(name = "idx_chatRoom_id_id", columnList = "chatRoom_id, id DESC")})
+@Table(indexes = {@Index(name = "idx_chat_room_id_id", columnList = "chat_room_id, id DESC")})
 @DynamicInsert
 public class Chatting extends BaseEntity {
     @Id
@@ -27,7 +27,7 @@ public class Chatting extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "chatRoom_id",
+            name = "chat_room_id",
             nullable = false,
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private ChatRoom chatRoom;
