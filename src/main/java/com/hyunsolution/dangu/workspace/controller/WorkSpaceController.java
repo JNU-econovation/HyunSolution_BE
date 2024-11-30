@@ -24,8 +24,9 @@ public class WorkSpaceController {
 
     @GetMapping("/workspaces")
     @Operation(summary = "워크스페이스(매칭) 목록조회", description = "매칭이 완료되지 않고 대기 하고 있는 매칭만 조회합니다.")
-    public ApiResponse<List<GetWorkspacesResponse>> getWorkspaces() {
-        List<GetWorkspacesResponse> responses = workSpaceService.getWorkspaces();
+    public ApiResponse<List<GetWorkspacesResponse>> getWorkspaces(
+            @Parameter(hidden = true) @RequestHeader("Authorization") Long id) {
+        List<GetWorkspacesResponse> responses = workSpaceService.getWorkspaces(id);
         return ApiResponse.success(responses);
     }
 

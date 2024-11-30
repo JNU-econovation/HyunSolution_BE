@@ -1,14 +1,13 @@
 package com.hyunsolution.dangu.workspace.service;
 
-import com.hyunsolution.dangu.common.event.EventPublish;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.user.exception.UserNotFoundException;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import com.hyunsolution.dangu.workspace.dto.response.GetWorkspacesResponse;
+import com.hyunsolution.dangu.workspace.exception.WorkspaceAlreadyExistsException;
 import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,27 +21,32 @@ public class WorkspaceService {
 
     // 게임방 등록
     @Transactional
-    @EventPublish
     public void addWorkspace(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> UserNotFoundException.EXCEPTION);
+        validateAlreadyExists(user.getId());
         Workspace workSpace = Workspace.builder().creator(user).build();
         workSpaceRepository.save(workSpace);
     }
 
-    // 게임방 목록 조회
-    public List<GetWorkspacesResponse> getWorkspaces() {
-        LocalDateTime dateFilter = LocalDateTime.now().minusDays(1);
-        return workSpaceRepository.findAll().stream()
-                .filter(workspace -> !workspace.isMatched())
-                .filter(workspace -> !workspace.isDeleted()) // softDelete가 되지 않은 게임방 조회
-                .filter(
-                        workspace ->
-                                workspace.getCreatedAt().isAfter(dateFilter)) // 게임방 조회: 유지 시간은 24h
+    public List<GetWorkspacesResponse> getWorkspaces(Long loginUserId) {
+        return workSpaceRepository.findUnmatchedAndCreatedWithinLastDay().stream()
                 .map(
                         workspace ->
                                 GetWorkspacesResponse.of(
-                                        workspace.getId(), workspace.getCreator().getUid()))
+                                        workspace.getId(),
+                                        workspace.getCreator().getUid(),
+                                        isOwn(loginUserId, workspace)))
                 .toList();
+    }
+
+    private void validateAlreadyExists(Long creatorId) {
+        if (Boolean.TRUE.equals(workSpaceRepository.existsByCreatorId(creatorId))) {
+            throw WorkspaceAlreadyExistsException.EXCEPTION;
+        }
+    }
+
+    private boolean isOwn(Long loginUserId, Workspace workspace) {
+        return loginUserId.equals(workspace.getCreator().getId());
     }
 
     // 게임방 등록 취소
