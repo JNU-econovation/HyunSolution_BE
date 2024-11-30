@@ -1,6 +1,7 @@
 package com.hyunsolution.dangu.chatlog.domain;
 
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
+import com.hyunsolution.dangu.common.BaseEntity;
 import com.hyunsolution.dangu.user.domain.User;
 import java.time.LocalDateTime;
 import javax.persistence.*;
@@ -13,7 +14,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatLog {
+public class ChatLog extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

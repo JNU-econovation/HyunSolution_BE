@@ -1,6 +1,7 @@
 package com.hyunsolution.dangu.participant.domain;
 
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
+import com.hyunsolution.dangu.common.BaseEntity;
 import com.hyunsolution.dangu.user.domain.User;
 import javax.persistence.*;
 import lombok.AccessLevel;
@@ -12,7 +13,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Participant {
+public class Participant extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -7,7 +7,10 @@ import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import com.hyunsolution.dangu.workspace.dto.response.GetWorkspacesResponse;
 import com.hyunsolution.dangu.workspace.exception.WorkspaceAlreadyExistsException;
+import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
+import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +21,7 @@ public class WorkspaceService {
     private final WorkspaceRepository workSpaceRepository;
     private final UserRepository userRepository;
 
+    // 게임방 등록
     @Transactional
     public void addWorkspace(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> UserNotFoundException.EXCEPTION);
@@ -45,5 +49,14 @@ public class WorkspaceService {
 
     private boolean isOwn(Long loginUserId, Workspace workspace) {
         return loginUserId.equals(workspace.getCreator().getId());
+    }
+    // 게임방 등록 취소
+    @Transactional
+    public void deleteWorkspace(Long workspaceId) {
+        Workspace workspace =
+                workSpaceRepository
+                        .findById(workspaceId)
+                        .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
+        workspace.isDeleted();
     }
 }

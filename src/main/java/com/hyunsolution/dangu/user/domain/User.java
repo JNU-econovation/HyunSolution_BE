@@ -1,5 +1,6 @@
 package com.hyunsolution.dangu.user.domain;
 
+import com.hyunsolution.dangu.common.BaseEntity;
 import javax.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

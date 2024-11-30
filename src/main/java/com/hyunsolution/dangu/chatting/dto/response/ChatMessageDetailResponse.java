@@ -1,5 +1,5 @@
 package com.hyunsolution.dangu.chatting.dto.response;
 
-import java.time.LocalDateTime;
+import com.hyunsolution.dangu.chatting.domain.MessageType;
 
-public record ChatMessageDetailResponse(String message, String senderId, LocalDateTime createAt) {}
+public record ChatMessageDetailResponse(String senderId, String message, MessageType messageType) {}
