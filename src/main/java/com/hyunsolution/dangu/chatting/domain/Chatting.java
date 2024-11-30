@@ -3,7 +3,6 @@ package com.hyunsolution.dangu.chatting.domain;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.common.BaseEntity;
 import com.hyunsolution.dangu.user.domain.User;
-import java.awt.*;
 import java.time.LocalDateTime;
 import javax.persistence.*;
 import lombok.AccessLevel;
@@ -11,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -19,6 +19,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 @Table(indexes = {@Index(name = "idx_chatRoom_id_id", columnList = "chatRoom_id, id DESC")})
+@DynamicInsert
 public class Chatting extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,8 +47,7 @@ public class Chatting extends BaseEntity {
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @ColumnDefault("TEXT")
+    @ColumnDefault("'TEXT'")
     private MessageType messageType;
 
     @Builder
