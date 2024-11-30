@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<h1>Chat Test</h1>
+<div id="chat">
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type your message" />
+    <button id="sendBtn">Send</button>
+</div>
+
+<script>
+    let client;
+    const socket = new WebSocket('ws://15.164.186.158:8080/chat');
+    client = Stomp.over(socket);
+
+    // WebSocket 연결 및 STOMP 클라이언트 초기화
+    function connect() {
+        client.connect({}, function(frame) {
+            console.log('Connected to WebSocket server!');
+
+            // 메시지 구독
+            client.subscribe('/topic/chat/1', function(message) {
+                const receivedMessage = message.body;
+                const messageDiv = document.createElement('div');
+                messageDiv.textContent = `Received: ${receivedMessage}`;
+                document.getElementById('messages').appendChild(messageDiv);
+            });
+        }, function(error) {
+            console.error('Connection error:', error);
+        });
+    }
+
+    // 메시지 보내기
+    function sendMessage() {
+        if (!client.connected) {
+            console.error("STOMP client is not connected.");
+            return;
+        }
+        const message = document.getElementById('messageInput').value;
+        client.send('/app/chat/1', {
+            'Authorization': '1'
+        }, JSON.stringify({message: message}));
+        document.getElementById('messageInput').value = ''; // 입력창 초기화
+    }
+
+    // 이벤트 리스너 설정
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+    // WebSocket 연결 시작
+    connect();
+</script>
+</body>
+</html>
