@@ -10,7 +10,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -47,8 +46,7 @@ public class Chatting extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @ColumnDefault("TEXT")
-    private MessageType messageType;
+    private MessageType messageType = MessageType.TEXT;
 
     @Builder
     private Chatting(ChatRoom chatRoom, User sender, String content, MessageType messageType) {
