@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 public class BaseEntity {
     // 삭제
-    private boolean isDeleted = false;
+    private boolean isDeleted;
 
     public void toggleDeleted() {
         isDeleted = !isDeleted;
