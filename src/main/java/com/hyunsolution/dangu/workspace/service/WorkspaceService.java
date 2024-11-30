@@ -62,6 +62,6 @@ public class WorkspaceService {
                 workSpaceRepository
                         .findById(workspaceId)
                         .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
-        workspace.isDeleted();
+        workspace.toggleDeleted();
     }
 }
