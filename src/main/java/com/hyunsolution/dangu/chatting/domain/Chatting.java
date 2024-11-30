@@ -18,7 +18,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-@Table(indexes = {@Index(name = "idx_chatRoom_id_id", columnList = "chatRoom_id, id DESC")})
+@Table(indexes = {@Index(name = "idx_chat_room_id_id", columnList = "chat_room_id, id DESC")})
 @DynamicInsert
 public class Chatting extends BaseEntity {
     @Id
