@@ -8,9 +8,7 @@ import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import com.hyunsolution.dangu.workspace.dto.response.GetWorkspacesResponse;
 import com.hyunsolution.dangu.workspace.exception.WorkspaceAlreadyExistsException;
 import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
-import java.time.LocalDateTime;
 import java.util.List;
-import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +48,7 @@ public class WorkspaceService {
     private boolean isOwn(Long loginUserId, Workspace workspace) {
         return loginUserId.equals(workspace.getCreator().getId());
     }
+
     // 게임방 등록 취소
     @Transactional
     public void deleteWorkspace(Long workspaceId) {
