@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface WorkspaceRepository extends JpaRepository<Workspace, Long> {
     @Query(
-            "select w from Workspace w where w.isMatched = false and w.createdAt > current_timestamp - 1")
+            "select w from Workspace w where w.isMatched = false and w.createdAt > current_timestamp - 1 and w.isDeleted = false")
     List<Workspace> findUnmatchedAndCreatedWithinLastDay();
 
     @Query(
