@@ -2,7 +2,7 @@ spring:
   config:
     import: optional:file:.env[.properties]
   datasource:
-    url: jdbc:${MYSQL:mysql}://${HOST:localhost}:${PORT:3306}/${DATABASE}
+    url: jdbc:${MYSQL:mysql}://${HOST:localhost}:${PORT:3306}/${DATABASE}?serverTimezone=Asia/Seoul
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
