@@ -15,5 +15,7 @@ EXPOSE 8080
 # Step 5: Copy application JAR file
 COPY build/libs/dangu-0.0.1-SNAPSHOT.jar app.jar
 
+COPY nginx/app.conf /etc/nginx/nginx.conf
+
 # Step 6: Set the entrypoint to run the application
 ENTRYPOINT ["java", "-jar", "/app.jar"]
