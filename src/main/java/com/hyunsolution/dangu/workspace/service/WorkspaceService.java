@@ -8,18 +8,20 @@ import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import com.hyunsolution.dangu.workspace.dto.response.GetWorkspacesResponse;
 import com.hyunsolution.dangu.workspace.exception.WorkspaceAlreadyExistsException;
 import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class WorkspaceService {
     private final WorkspaceRepository workSpaceRepository;
     private final UserRepository userRepository;
+
+    private final LocalDateTime startTime = LocalDateTime.now().minusDays(1);
+    private final LocalDateTime endTime = LocalDateTime.now();
 
     // 게임방 등록
     @Transactional
@@ -30,9 +32,9 @@ public class WorkspaceService {
         workSpaceRepository.save(workSpace);
     }
 
+    @Transactional(readOnly = true)
     public List<GetWorkspacesResponse> getWorkspaces(Long loginUserId) {
-        log.info("CI/CD 테스트 loginUserId: {}", loginUserId);
-        return workSpaceRepository.findUnmatchedAndCreatedWithinLastDay().stream()
+        return workSpaceRepository.findUnmatchedAndCreatedWithinDay(startTime, endTime).stream()
                 .map(
                         workspace ->
                                 GetWorkspacesResponse.of(
@@ -43,7 +45,8 @@ public class WorkspaceService {
     }
 
     private void validateAlreadyExists(Long creatorId) {
-        if (Boolean.TRUE.equals(workSpaceRepository.existsByCreatorId(creatorId))) {
+        if (Boolean.TRUE.equals(
+                workSpaceRepository.existsByCreatorIdWithinDay(creatorId, startTime, endTime))) {
             throw WorkspaceAlreadyExistsException.EXCEPTION;
         }
     }
@@ -59,6 +62,6 @@ public class WorkspaceService {
                 workSpaceRepository
                         .findById(workspaceId)
                         .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
-        workspace.isDeleted();
+        workspace.toggleDeleted();
     }
 }
