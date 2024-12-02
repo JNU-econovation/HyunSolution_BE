@@ -11,11 +11,13 @@ import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class WorkspaceService {
     private final WorkspaceRepository workSpaceRepository;
     private final UserRepository userRepository;
@@ -34,6 +36,7 @@ public class WorkspaceService {
 
     @Transactional(readOnly = true)
     public List<GetWorkspacesResponse> getWorkspaces(Long loginUserId) {
+        log.info("startTime " + startTime + " / endTime" + endTime);
         return workSpaceRepository.findUnmatchedAndCreatedWithinDay(startTime, endTime).stream()
                 .map(
                         workspace ->
