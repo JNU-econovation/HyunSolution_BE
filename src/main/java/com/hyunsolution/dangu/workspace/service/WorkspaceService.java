@@ -22,9 +22,6 @@ public class WorkspaceService {
     private final WorkspaceRepository workSpaceRepository;
     private final UserRepository userRepository;
 
-    private final LocalDateTime startTime = LocalDateTime.now().minusDays(1);
-    private final LocalDateTime endTime = LocalDateTime.now();
-
     // 게임방 등록
     @Transactional
     public void addWorkspace(Long id) {
@@ -36,6 +33,9 @@ public class WorkspaceService {
 
     @Transactional(readOnly = true)
     public List<GetWorkspacesResponse> getWorkspaces(Long loginUserId) {
+        LocalDateTime startTime = LocalDateTime.now().minusDays(1);
+        LocalDateTime endTime = LocalDateTime.now();
+
         log.info("startTime " + startTime + " / endTime" + endTime);
         return workSpaceRepository.findUnmatchedAndCreatedWithinDay(startTime, endTime).stream()
                 .map(
@@ -48,6 +48,8 @@ public class WorkspaceService {
     }
 
     private void validateAlreadyExists(Long creatorId) {
+        LocalDateTime startTime = LocalDateTime.now().minusDays(1);
+        LocalDateTime endTime = LocalDateTime.now();
         if (Boolean.TRUE.equals(
                 workSpaceRepository.existsByCreatorIdWithinDay(creatorId, startTime, endTime))) {
             throw WorkspaceAlreadyExistsException.EXCEPTION;
