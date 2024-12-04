@@ -16,7 +16,7 @@
 
 <script>
     let client;
-    const socket = new WebSocket('wss://hyunsolution.duckdns.org/chat/');
+    const socket = new WebSocket('wss://hyunsolution.duckdns.org/chat');
     client = Stomp.over(socket);
 
     // WebSocket 연결 및 STOMP 클라이언트 초기화
