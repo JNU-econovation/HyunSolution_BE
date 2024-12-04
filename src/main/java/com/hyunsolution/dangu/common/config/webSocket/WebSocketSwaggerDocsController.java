@@ -11,7 +11,7 @@ public class WebSocketSwaggerDocsController {
             description =
                     """
             WebSocket URL, 구독 경로 및 발행 경로 안내
-            - WebSocket 접속 URL: wss://54.221.244.36:8080/chat
+            - WebSocket 접속 URL: wss://hyunsolution.duckdns.org/chat
             - STOMP 구독 주소: /topic/chat/{chatRoomId}
             - 메시지 전송 주소: /app/chat/{chatRoomId}
             """)
