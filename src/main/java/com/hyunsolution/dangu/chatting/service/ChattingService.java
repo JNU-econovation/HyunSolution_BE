@@ -10,11 +10,10 @@ import com.hyunsolution.dangu.chatting.domain.Chatting;
 import com.hyunsolution.dangu.chatting.domain.ChattingRepository;
 import com.hyunsolution.dangu.chatting.domain.MessageType;
 import com.hyunsolution.dangu.chatting.dto.response.ChatMessageDetailResponse;
-import com.hyunsolution.dangu.chatting.dto.response.GetChatRoomsResponse;
 import com.hyunsolution.dangu.chatting.dto.response.ChattingsDto;
+import com.hyunsolution.dangu.chatting.dto.response.GetChatRoomsResponse;
 import com.hyunsolution.dangu.chatting.dto.response.GetChattingsResponse;
 import com.hyunsolution.dangu.chatting.exception.ChatRoomNotFoundException;
-import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
@@ -40,18 +39,23 @@ public class ChattingService {
     @Transactional(readOnly = true)
     public GetChattingsResponse getChattings(Long loginUserId, Long chatRoomId) {
         List<Chatting> chattings = chattingRepository.findByChatRoomId(chatRoomId);
-        List<ChattingsDto>chattingsDtos =  chattings.stream()
-                .map(
-                        chatting -> {
-                            boolean isOwn = isOwn(loginUserId, chatting.getSender().getId());
-                            return ChattingsDto.of(
-                                    chatting.getContent(), chatting.getId(), isOwn);
-                        })
-                .toList();
+        List<ChattingsDto> chattingsDtos =
+                chattings.stream()
+                        .map(
+                                chatting -> {
+                                    boolean isOwn =
+                                            isOwn(loginUserId, chatting.getSender().getId());
+                                    return ChattingsDto.of(
+                                            chatting.getContent(), chatting.getId(), isOwn);
+                                })
+                        .toList();
 
-    ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
+        ChatRoom chatRoom =
+                chatRoomRepository
+                        .findById(chatRoomId)
+                        .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
 
-    return GetChattingsResponse.of(getOtherPeople(chatRoom,loginUserId), chattingsDtos);
+        return GetChattingsResponse.of(getOtherPeople(chatRoom, loginUserId), chattingsDtos);
     }
 
     @Transactional(readOnly = true)
