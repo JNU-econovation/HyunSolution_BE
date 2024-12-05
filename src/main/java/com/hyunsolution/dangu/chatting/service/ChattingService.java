@@ -46,21 +46,21 @@ public class ChattingService {
                                     boolean isOwn =
                                             isOwn(loginUserId, chatting.getSender().getId());
                                     return ChattingsDto.of(
-                                            chatting.getContent(), chatting.getId(), isOwn, chatting.getMessageType());
+                                            chatting.getContent(),
+                                            chatting.getId(),
+                                            isOwn,
+                                            chatting.getMessageType());
                                 })
                         .toList();
 
-        ChatRoom chatRoom =
-                chatRoomRepository
-                        .findById(chatRoomId)
-                        .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
-
+        ChatRoom chatRoom = chatRoomRepository.findByChatRoomIdWithFetchJoin(chatRoomId);
         return GetChattingsResponse.of(getOtherPeople(chatRoom, loginUserId), chattingsDtos);
     }
 
     @Transactional(readOnly = true)
     public List<GetChatRoomsResponse> getChatRooms(Long userId) {
-        List<ChatRoom> chatRooms = chatRoomRepository.findByParticipantUserId(userId);
+        List<ChatRoom> chatRooms =
+                chatRoomRepository.findByParticipantUserIdWithEntityGraph(userId);
         return chatRooms.stream()
                 .sorted(Comparator.comparing(ChatRoom::getChatUpdateAt).reversed())
                 .map(
@@ -76,7 +76,6 @@ public class ChattingService {
     private boolean isOwn(Long loginUserId, Long chattingUserId) {
         return loginUserId.equals(chattingUserId);
     }
-
 
     private List<String> getOtherPeople(ChatRoom chatRoom, Long loginUserId) {
         return chatRoom.getParticipants().stream()
