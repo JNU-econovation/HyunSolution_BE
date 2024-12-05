@@ -46,7 +46,7 @@ public class ChattingService {
                                     boolean isOwn =
                                             isOwn(loginUserId, chatting.getSender().getId());
                                     return ChattingsDto.of(
-                                            chatting.getContent(), chatting.getId(), isOwn);
+                                            chatting.getContent(), chatting.getId(), isOwn, chatting.getMessageType());
                                 })
                         .toList();
 
@@ -76,6 +76,7 @@ public class ChattingService {
     private boolean isOwn(Long loginUserId, Long chattingUserId) {
         return loginUserId.equals(chattingUserId);
     }
+
 
     private List<String> getOtherPeople(ChatRoom chatRoom, Long loginUserId) {
         return chatRoom.getParticipants().stream()
