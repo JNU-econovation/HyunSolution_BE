@@ -10,7 +10,7 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
 
     // 같은 방에 있는 사람들 id(PK) 리스트
     @Query(value = "SELECT p.id FROM Participant p WHERE p.chatRoom.id=:chatRoomId")
-    List<Long> findParticipantIdByChatRoomId(Long chatRoomId);
+    List<Long> findIdByChatRoomId(Long chatRoomId);
 
     // ID별 매칭버튼 클릭 여부
     @Query(
