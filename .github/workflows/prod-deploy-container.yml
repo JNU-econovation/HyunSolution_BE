@@ -91,9 +91,10 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            cd /home/${{ secrets.EC2_USER }}/HyunSolution_BE # docker-compose.yml 파일 위치로 이동
+            
             git pull origin develop
             
-            cd /home/${{ secrets.EC2_USER }} # docker-compose.yml 파일 위치로 이동
             
             # Spring 서버 컨테이너 중지
             sudo docker-compose stop SpringServer
