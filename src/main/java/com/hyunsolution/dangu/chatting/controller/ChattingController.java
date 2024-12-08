@@ -1,10 +1,7 @@
 package com.hyunsolution.dangu.chatting.controller;
 
 import com.hyunsolution.dangu.chatting.dto.request.ChatMessageRequest;
-import com.hyunsolution.dangu.chatting.dto.response.ChatMessageDetailResponse;
-import com.hyunsolution.dangu.chatting.dto.response.ChatMessageResponse;
-import com.hyunsolution.dangu.chatting.dto.response.GetChatRoomsResponse;
-import com.hyunsolution.dangu.chatting.dto.response.GetChattingsResponse;
+import com.hyunsolution.dangu.chatting.dto.response.*;
 import com.hyunsolution.dangu.chatting.service.ChattingService;
 import com.hyunsolution.dangu.common.apiResponse.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,10 +24,10 @@ public class ChattingController {
     @Operation(
             summary = "채팅방에 대한 채팅을 조회한다.",
             description = "워크스페이스(채팅방)에 대한 채팅을 조회한다. 워크스페이스 당 채팅방 하나 이기 때문에 워크스페이스를 채팅방이랑 같다고 생각")
-    public ApiResponse<List<GetChattingsResponse>> getChattings(
+    public ApiResponse<GetChattingsResponse> getChattings(
             @Parameter(hidden = true) @RequestHeader("Authorization") Long userId,
             @PathVariable Long chatRoomId) {
-        List<GetChattingsResponse> responses = chattingService.getChattings(userId, chatRoomId);
+        GetChattingsResponse responses = chattingService.getChattings(userId, chatRoomId);
         return ApiResponse.success(responses);
     }
 

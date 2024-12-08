@@ -1,7 +1,9 @@
 package com.hyunsolution.dangu.chatting.dto.response;
 
-public record GetChattingsResponse(String content, Long chattingId, boolean isOwn) {
-    public static GetChattingsResponse of(String content, Long chattingId, boolean isOwn) {
-        return new GetChattingsResponse(content, chattingId, isOwn);
+import java.util.List;
+
+public record GetChattingsResponse(List<String> otherPeople, List<ChattingsDto> chattings) {
+    public static GetChattingsResponse of(List<String> otherName, List<ChattingsDto> chattings) {
+        return new GetChattingsResponse(otherName, chattings);
     }
 }
