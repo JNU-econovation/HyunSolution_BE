@@ -35,9 +35,7 @@ public class WebSocketListenerConfig {
         System.out.println("session 연결 종료: " + sessionId);
     }
 
-
     private String getSessionId(AbstractSubProtocolEvent event) {
         return (String) event.getMessage().getHeaders().get("simpSessionId");
     }
-
 }
