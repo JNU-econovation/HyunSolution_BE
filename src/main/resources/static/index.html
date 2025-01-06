@@ -16,16 +16,21 @@
 
 <script>
     let client;
-    const socket = new WebSocket('wss://hyunsolution.duckdns.org/chat');
+    const socket = new WebSocket('ws://localhost:8080/chat');//wss://hyunsolution.duckdns.org/chat
     client = Stomp.over(socket);
 
     // WebSocket 연결 및 STOMP 클라이언트 초기화
     function connect() {
-        client.connect({}, function(frame) {
+        client.connect(
+        {
+            Authorization: '1', // 사용자 ID
+            RoomId: '1'         // 방 번호
+        },
+            function(frame) {
             console.log('Connected to WebSocket server!');
 
             // 메시지 구독
-            client.subscribe('/topic/chat/10', function(message) {
+            client.subscribe('/topic/chat/1', function(message) {
                 const receivedMessage = message.body;
                 const messageDiv = document.createElement('div');
                 messageDiv.textContent = `Received: ${receivedMessage}`;
@@ -43,8 +48,8 @@
             return;
         }
         const message = document.getElementById('messageInput').value;
-        client.send('/app/chat/10', {
-            'Authorization': 16
+        client.send('/app/chat/1', {
+            'Authorization': 1
         }, JSON.stringify({message: message}));
         document.getElementById('messageInput').value = ''; // 입력창 초기화
     }
