@@ -102,7 +102,7 @@ public class ParticipantService {
 
     // 모든 참가자가 매칭되었는지 확인
     private boolean allParticipantsMatched(Long chatRoomId) {
-        List<Long> participantIds = participantRepository.findParticipantIdByChatRoomId(chatRoomId);
+        List<Long> participantIds = participantRepository.findIdByChatRoomId(chatRoomId);
         return participantRepository.existsByIdAndParticipantMatchTrue(participantIds);
     }
 
