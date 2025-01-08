@@ -13,7 +13,7 @@ import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import com.hyunsolution.dangu.participant.dto.request.UpdateParticipantMatchRequest;
 import com.hyunsolution.dangu.participant.dto.response.EnterChatRoomResponse;
 import com.hyunsolution.dangu.participant.dto.response.GetMatchStatusResponse;
-import com.hyunsolution.dangu.participant.exception.AlreadyMatchedException;
+import com.hyunsolution.dangu.participant.exception.AlreadyMatchedCannotAcceptException;
 import com.hyunsolution.dangu.participant.exception.ParticipantNotFoundException;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
@@ -72,7 +72,7 @@ public class ParticipantService {
 
         // 2. 이미 매칭된 상태인지 확인
         if (participant.getChatRoom().getWorkspace().isMatched()) {
-            throw AlreadyMatchedException.EXCEPTION;
+            throw AlreadyMatchedCannotAcceptException.EXCEPTION;
         }
 
         // 3. 참가자의 매칭 상태 업데이트

@@ -39,6 +39,7 @@ public class ChattingService {
 
     @Transactional(readOnly = true)
     public GetChattingsResponse getChattings(Long loginUserId, Long chatRoomId) {
+        validateIsAlreadyMatched(chatRoomId);
         List<Chatting> chattings = chattingRepository.findByChatRoomId(chatRoomId);
         List<ChattingsDto> chattingsDtos =
                 chattings.stream()
@@ -56,6 +57,16 @@ public class ChattingService {
 
         ChatRoom chatRoom = chatRoomRepository.findByIdWithFetchJoinParticipantsAndUSer(chatRoomId);
         return GetChattingsResponse.of(getOtherPeople(chatRoom, loginUserId), chattingsDtos);
+    }
+
+    private void validateIsAlreadyMatched(Long chatRoomId) {
+        ChatRoom chatRoom =
+                chatRoomRepository
+                        .findById(chatRoomId)
+                        .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
+        if (chatRoom.getWorkspace().isMatched() && !chatRoom.isMatched()) {
+            throw AlreadyMatchedException.EXCEPTION;
+        }
     }
 
     @Transactional(readOnly = true)
