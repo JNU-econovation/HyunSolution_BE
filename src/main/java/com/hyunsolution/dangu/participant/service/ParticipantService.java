@@ -103,7 +103,7 @@ public class ParticipantService {
     // 모든 참가자가 매칭되었는지 확인
     private boolean allParticipantsMatched(Long chatRoomId) {
         List<Long> participantIds = participantRepository.findIdByChatRoomId(chatRoomId);
-        return participantRepository.existsByIdAndParticipantMatchTrue(participantIds);
+        return !participantRepository.existsByIdAndParticipantMatchFalse(participantIds);
     }
 
     // 채팅방의 매칭을 최종 확정
