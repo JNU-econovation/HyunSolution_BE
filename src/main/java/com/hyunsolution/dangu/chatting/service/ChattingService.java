@@ -45,8 +45,7 @@ public class ChattingService {
                 chattings.stream()
                         .map(
                                 chatting -> {
-                                    boolean isOwn =
-                                            isOwn(loginUserId, chatting.getSender().getId());
+                                    boolean isOwn = isOwn(loginUserId, chatting.getSender());
                                     return ChattingsDto.of(
                                             chatting.getContent(),
                                             chatting.getId(),
@@ -85,8 +84,11 @@ public class ChattingService {
                 .toList();
     }
 
-    private boolean isOwn(Long loginUserId, Long chattingUserId) {
-        return loginUserId.equals(chattingUserId);
+    private boolean isOwn(Long loginUserId, User sender) {
+        if (sender == null) {
+            return false;
+        }
+        return loginUserId.equals(sender.getId());
     }
 
     private List<String> getOtherPeople(ChatRoom chatRoom, Long loginUserId) {
