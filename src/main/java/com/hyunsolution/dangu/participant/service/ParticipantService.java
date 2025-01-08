@@ -4,6 +4,7 @@ import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoomRepository;
 import com.hyunsolution.dangu.chatRoom.exception.ChatRoomNotFoundException;
 import com.hyunsolution.dangu.chatting.domain.Chatting;
+import com.hyunsolution.dangu.chatting.domain.ChattingRepository;
 import com.hyunsolution.dangu.chatting.domain.MessageType;
 import com.hyunsolution.dangu.common.event.CreateChatRoomEvent;
 import com.hyunsolution.dangu.common.event.EventPublish;
@@ -33,6 +34,7 @@ public class ParticipantService {
     private final UserRepository userRepository;
     private final WorkspaceRepository workspaceRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final ChattingRepository chattingRepository;
 
     // 채팅방 생성
     @Transactional
@@ -116,11 +118,13 @@ public class ParticipantService {
         chatRoom.acceptMatching();
 
         // 매칭 확정 메시지 저장
-        Chatting.builder()
-                .chatRoom(chatRoom)
-                .content("매칭되었습니다.")
-                .messageType(MessageType.SYSTEM)
-                .build();
+        Chatting chatting =
+                Chatting.builder()
+                        .chatRoom(chatRoom)
+                        .content("매칭되었습니다.")
+                        .messageType(MessageType.SYSTEM)
+                        .build();
+        chattingRepository.save(chatting);
     }
 
     // 채팅방의 매칭을 최종 확정
