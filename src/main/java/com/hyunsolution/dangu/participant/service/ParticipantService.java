@@ -134,21 +134,24 @@ public class ParticipantService {
 
     // 매칭 현황 조회
     public GetMatchStatusResponse getMatchResult(Long userId, Long chatRoomId) {
-        List<Participant> participants = participantRepository.findByChatRoomId(chatRoomId);
-        List<Long> participantIds = participants.stream().map(Participant::getId).toList();
+        List<Long> participants = participantRepository.findIdByChatRoomId(chatRoomId);
         Participant userParticipant =
                 participantRepository
-                        .findByUserIdInParticipantsId(userId, participantIds)
+                        .findByUserIdInParticipantsId(userId, participants)
                         .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
         // 자신의 매칭 신청 현황
         boolean myself = userParticipant.isParticipantMatch();
 
         // 상대방의 매칭 신청 현황
         boolean counterpart = false;
-        for (Participant participant : participants) {
+        for (Long participant : participants) {
             // id와 해당 채팅방에 있는 사람들을 비교 같으면 owner
-            if (!participant.getId().equals(userParticipant.getId())) {
-                counterpart = participant.isParticipantMatch();
+            if (!participant.equals(userParticipant.getId())) {
+                Participant par =
+                        participantRepository
+                                .findById(participant)
+                                .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
+                counterpart = par.isParticipantMatch();
             }
         }
         // 전체 게임방의 매칭 결과
