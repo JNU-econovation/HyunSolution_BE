@@ -42,7 +42,11 @@ public class Game extends BaseEntity {
     @ColumnDefault("false")
     private Boolean lose;
 
-    private Integer score;
+    @Column(name = "start_score")
+    private Integer startScore;
+
+    @Column(name = "final_score")
+    private Integer finalScore;
 
     @Column(name = "start_time", nullable = false)
     @CreatedDate
