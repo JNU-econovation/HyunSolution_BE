@@ -3,12 +3,11 @@ package com.hyunsolution.dangu.game.domain;
 import com.hyunsolution.dangu.common.BaseEntity;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
+import java.time.LocalDateTime;
+import javax.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
-
-import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -35,7 +34,7 @@ public class Game extends BaseEntity {
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Workspace workspace;
 
-    @Column(name ="game_round", nullable = false)
+    @Column(name = "game_round", nullable = false)
     @ColumnDefault("1")
     private Integer gameRound;
 
@@ -51,7 +50,6 @@ public class Game extends BaseEntity {
 
     @Column(name = "end_time")
     private LocalDateTime endTime;
-
 
     @Builder
     private Game(User user, Workspace workspace) {

@@ -27,6 +27,7 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
     @Query("SELECT p FROM Participant p WHERE p.user.id =:userId AND p.id IN :participantIds")
     Optional<Participant> findByUserIdInParticipantsId(Long userId, List<Long> participantIds);
 
-    @Query("SELECT p FROM Participant p WHERE p.chatRoom.isMatched=TRUE AND p.chatRoom.workspace.id=:workspaceId")
+    @Query(
+            "SELECT p FROM Participant p WHERE p.chatRoom.isMatched=TRUE AND p.chatRoom.workspace.id=:workspaceId")
     List<Participant> findByWorkspaceId(Long workspaceId);
 }
