@@ -26,7 +26,7 @@ public class GameController {
         return ApiResponse.success(response);
     }
 
-    @PostMapping("/game/{workspaceId}")
+    @PostMapping("/game/{workspaceId}")//e.g.  /game/{workspaceId}?tableNumber=5
     @Operation(
             summary = "당구대 번호를 입력한다.",
             description = "방장이 입력한 당구대 번호를 저장한다.")
