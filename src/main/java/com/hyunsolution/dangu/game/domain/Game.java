@@ -5,6 +5,7 @@ import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -45,6 +46,7 @@ public class Game extends BaseEntity {
     private Integer score;
 
     @Column(name = "start_time", nullable = false)
+    @CreatedDate
     private LocalDateTime startTime;
 
     @Column(name = "end_time")
@@ -52,10 +54,8 @@ public class Game extends BaseEntity {
 
 
     @Builder
-    private Game(User user, Workspace workspace, Integer gameRound, LocalDateTime startTime) {
+    private Game(User user, Workspace workspace) {
         this.user = user;
         this.workspace = workspace;
-        this.gameRound = gameRound;
-        this.startTime = startTime;
     }
 }
