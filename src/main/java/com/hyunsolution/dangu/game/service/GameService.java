@@ -2,6 +2,7 @@ package com.hyunsolution.dangu.game.service;
 
 import com.hyunsolution.dangu.game.domain.Game;
 import com.hyunsolution.dangu.game.domain.GameRepository;
+import com.hyunsolution.dangu.game.dto.request.GetGameScoreRequest;
 import com.hyunsolution.dangu.game.dto.response.EnterGameRoomResponse;
 import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
@@ -9,6 +10,8 @@ import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,5 +52,24 @@ public class GameService {
                         .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
 
         workspace.setTableNumber(tableNumber);
+    }
+
+    @Transactional
+    public void saveGameScore(Long workspaceId, Long userId, GetGameScoreRequest request) {
+        Game game= gameRepository.findByWorkspaceIdAndUserId(workspaceId, userId);
+        List<Game> games = gameRepository.findByWorkspaceId(workspaceId);
+        for (Game gamePerPerson : games) {
+            if (gamePerPerson.getEndTime()==null){
+                gamePerPerson.setEndTime(LocalDateTime.now());
+            }else{
+                break;
+            }
+        }
+
+        //점수 저장
+        game.setStartScore(request.startScore());
+        game.setFinalScore(request.finalScore());
+
+
     }
 }
