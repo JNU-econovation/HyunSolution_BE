@@ -23,7 +23,7 @@ public class GameService {
     private ParticipantRepository participantRepository;
 
     @Transactional
-    public EnterGameRoomResponse getGameRoom(Long workspaceId, Long userId) {
+    public EnterGameRoomResponse enterGameRoom(Long workspaceId, Long userId) {
 
         Workspace workspace =
                 workspaceRepository

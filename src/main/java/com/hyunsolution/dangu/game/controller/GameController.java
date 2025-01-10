@@ -22,7 +22,7 @@ public class GameController {
     public ApiResponse<EnterGameRoomResponse> getGameRoom(
             @Parameter(hidden = true) @RequestHeader("Authorization") Long userId,
             @PathVariable("workspaceId") Long workspaceId) {
-        EnterGameRoomResponse response = gameService.getGameRoom(workspaceId, userId);
+        EnterGameRoomResponse response = gameService.enterGameRoom(workspaceId, userId);
         return ApiResponse.success(response);
     }
 
