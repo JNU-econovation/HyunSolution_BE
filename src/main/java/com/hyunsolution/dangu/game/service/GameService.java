@@ -30,6 +30,7 @@ public class GameService {
 
         List<Participant> allUsersInRoom = participantRepository.findByWorkspaceId(workspaceId);
 
+        //기본 데이터 삽입
         for (Participant participant : allUsersInRoom) {
             User user= participant.getUser();
             Game gameDefault=Game.builder()
@@ -46,6 +47,9 @@ public class GameService {
 
     @Transactional
     public void saveTableNumber(Long workspaceId, int tableNumber) {
+        Workspace workspace=workspaceRepository.findById(workspaceId)
+                .orElseThrow(()-> WorkspaceNotFoundException.EXCEPTION);
 
+        workspace.setTableNumber(tableNumber);
     }
 }
