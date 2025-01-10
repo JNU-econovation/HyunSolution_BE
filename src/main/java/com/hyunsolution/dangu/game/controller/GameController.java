@@ -42,10 +42,8 @@ public class GameController {
     public ApiResponse<Void> saveScore(
             @Parameter(hidden = true) @RequestHeader("Authorization") Long userId,
             @PathVariable("workspaceId") Long workspaceId,
-            @RequestBody GetGameScoreRequest request
-            ){
+            @RequestBody GetGameScoreRequest request) {
         gameService.saveGameScore(workspaceId, userId, request);
         return ApiResponse.success(null);
     }
-
 }

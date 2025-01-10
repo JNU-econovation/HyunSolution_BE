@@ -10,7 +10,6 @@ import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -56,20 +55,18 @@ public class GameService {
 
     @Transactional
     public void saveGameScore(Long workspaceId, Long userId, GetGameScoreRequest request) {
-        Game game= gameRepository.findByWorkspaceIdAndUserId(workspaceId, userId);
+        Game game = gameRepository.findByWorkspaceIdAndUserId(workspaceId, userId);
         List<Game> games = gameRepository.findByWorkspaceId(workspaceId);
         for (Game gamePerPerson : games) {
-            if (gamePerPerson.getEndTime()==null){
+            if (gamePerPerson.getEndTime() == null) {
                 gamePerPerson.setEndTime(LocalDateTime.now());
-            }else{
+            } else {
                 break;
             }
         }
 
-        //점수 저장
+        // 점수 저장
         game.setStartScore(request.startScore());
         game.setFinalScore(request.finalScore());
-
-
     }
 }
