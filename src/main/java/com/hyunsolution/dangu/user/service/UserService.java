@@ -6,6 +6,7 @@ import com.hyunsolution.dangu.user.dto.response.LoginResponse;
 import com.hyunsolution.dangu.user.exception.UserWrongPasswordException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
     // TODO: 왜 트랜잭션 어노테이션을 붙이는지 공부하기(with flush가 언제 일어나나) - 다현
@@ -24,7 +26,7 @@ public class UserService {
             return new LoginResponse(newUser.getId());
         }
         // 비밀번호 일치 확인
-        if (loginUser.get().getPassword().equals(password)) {
+        if (isMatchPassword(loginUser.get(), password)) {
             return new LoginResponse(loginUser.get().getId());
         } else {
             throw UserWrongPasswordException.USER_WRONG_PASSWORD_EXCEPTION;
@@ -32,6 +34,11 @@ public class UserService {
     }
 
     public User registerUser(String uid, String password) {
-        return userRepository.save(User.builder().uid(uid).password(password).build());
+        return userRepository.save(
+                User.builder().uid(uid).password(passwordEncoder.encode(password)).build());
+    }
+
+    private boolean isMatchPassword(User loginUser, String encodedPassword) {
+        return passwordEncoder.matches(loginUser.getPassword(), encodedPassword);
     }
 }
