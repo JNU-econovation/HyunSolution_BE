@@ -14,8 +14,8 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
 
     // ID별 매칭버튼 클릭 여부
     @Query(
-            "select count(p) > 0 from Participant p where p.id in :ids and p.participantMatch = true")
-    Boolean existsByIdAndParticipantMatchTrue(List<Long> ids);
+            "select count(p) > 0 from Participant p where p.id in :ids and p.participantMatch = false")
+    Boolean existsByIdAndParticipantMatchFalse(List<Long> ids);
 
     // 개인 ID 찾기
     @Query(

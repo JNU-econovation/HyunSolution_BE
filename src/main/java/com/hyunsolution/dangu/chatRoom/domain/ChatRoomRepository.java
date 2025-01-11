@@ -14,5 +14,5 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
                     + "join fetch c.participants p "
                     + "join fetch p.user "
                     + "where c.id = :chatRoomId")
-    ChatRoom findByChatRoomIdWithFetchJoin(Long chatRoomId);
+    ChatRoom findByIdWithFetchJoinParticipantsAndUSer(Long chatRoomId);
 }
