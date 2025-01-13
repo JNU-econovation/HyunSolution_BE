@@ -1,25 +1,36 @@
 package com.hyunsolution.dangu.game.service;
 
+import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
+import com.hyunsolution.dangu.chatlog.domain.ChatLog;
+import com.hyunsolution.dangu.chatlog.domain.ChatLogRepository;
 import com.hyunsolution.dangu.game.domain.Game;
 import com.hyunsolution.dangu.game.domain.GameRepository;
 import com.hyunsolution.dangu.game.dto.request.GetGameScoreRequest;
 import com.hyunsolution.dangu.game.dto.response.EnterGameRoomResponse;
+import com.hyunsolution.dangu.game.dto.response.GetGameListResponse;
 import com.hyunsolution.dangu.participant.domain.Participant;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import com.hyunsolution.dangu.user.domain.User;
+import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@AllArgsConstructor
 public class GameService {
+    private final UserRepository userRepository;
     private GameRepository gameRepository;
     private WorkspaceRepository workspaceRepository;
     private ParticipantRepository participantRepository;
+    private ChatLogRepository chatLogRepository;
 
     @Transactional
     public EnterGameRoomResponse enterGameRoom(Long workspaceId, Long userId) {
@@ -68,5 +79,36 @@ public class GameService {
         // 점수 저장
         game.setStartScore(request.startScore());
         game.setFinalScore(request.finalScore());
+    }
+
+    @Transactional
+    public List<GetGameListResponse> getGameList(Long userId) {
+        List<GetGameListResponse> gameList = new ArrayList<>();
+
+        String uid =
+                userRepository
+                        .findById(userId)
+                        .map(user -> user.getUid())
+                        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 사용자입니다."));
+        List<ChatLog> allChatLog = chatLogRepository.findByUserId(userId);
+
+        for (ChatLog chatLog : allChatLog) {
+            ChatRoom eachChatRoom = chatLog.getChatRoom();
+
+            if (eachChatRoom.isMatched()) {
+                String opponentNickname =
+                        chatLogRepository
+                                .findUidByChatRoomIdAndUserId(eachChatRoom.getId(), userId)
+                                .orElseThrow(() -> new NoSuchElementException("상대가 없는 채팅방입니다."));
+                GetGameListResponse response =
+                        new GetGameListResponse(
+                                eachChatRoom.getWorkspace().getId(), uid, opponentNickname);
+                gameList.add(response);
+            }
+        }
+        for (GetGameListResponse response : gameList) {
+            System.out.println(response);
+        }
+        return gameList;
     }
 }
