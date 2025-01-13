@@ -6,7 +6,6 @@ import com.hyunsolution.dangu.game.dto.response.EnterGameRoomResponse;
 import com.hyunsolution.dangu.game.service.GameService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,8 +30,7 @@ public class GameController {
     public ApiResponse<Void> saveTableNumber(
             @Parameter(hidden = true) @RequestHeader("Authorization") Long userId,
             @PathVariable("workspaceId") Long workspaceId,
-            HttpServletRequest request) {
-        int tableNumber = Integer.parseInt(request.getParameter("tableNumber"));
+            @RequestParam("tableNumber") int tableNumber) {
         gameService.saveTableNumber(workspaceId, tableNumber);
         return ApiResponse.success(null);
     }
