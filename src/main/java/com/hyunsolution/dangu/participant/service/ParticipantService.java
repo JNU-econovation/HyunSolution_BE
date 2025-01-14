@@ -86,11 +86,12 @@ public class ParticipantService {
                 chatRoomRepository
                         .findById(chatRoomId)
                         .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
-        Chatting.builder()
-                .chatRoom(chatRoom)
-                .content(uid + "님이 매칭을 신청하셨습니다.")
-                .messageType(MessageType.SYSTEM)
-                .build();
+        Chatting chatting= Chatting.builder()
+                            .chatRoom(chatRoom)
+                            .content(uid + "님이 매칭을 신청하셨습니다.")
+                            .messageType(MessageType.SYSTEM)
+                            .build();
+        chattingRepository.save(chatting);
 
         // workspaceId 변수 저장
         Long workspaceId = chatRoom.getWorkspace().getId();
@@ -121,8 +122,8 @@ public class ParticipantService {
         Chatting chatting =
                 Chatting.builder()
                         .chatRoom(chatRoom)
-                        .content("매칭되었습니다.")
-                        .messageType(MessageType.SYSTEM)
+                        .content("매칭되었습니다.\n대전에서 게임을 시작하세요")
+                        .messageType(MessageType.STARTGAME)
                         .build();
         chattingRepository.save(chatting);
     }
