@@ -59,5 +59,7 @@ public class Game extends BaseEntity {
     private Game(User user, Workspace workspace) {
         this.user = user;
         this.workspace = workspace;
+        this.gameRound = 1;
+        this.lose = false;
     }
 }
