@@ -23,8 +23,9 @@ public class ChattingController {
     @GetMapping("/chattings/{chatRoomId}")
     @Operation(
             summary = "채팅방에 대한 채팅을 조회한다.",
-            description = "워크스페이스(채팅방)에 대한 채팅을 조회한다. " +
-                    "메세지 타입은 TEXT, SYSTEM, STARTGAME 세가지로 나뉘며 각각 기본 메시지, 매칭신청에 따른 시스템 문자, 매칭확정에 따른 시스템 문자를 의미한다.")
+            description =
+                    "워크스페이스(채팅방)에 대한 채팅을 조회한다. "
+                            + "메세지 타입은 TEXT, SYSTEM, STARTGAME 세가지로 나뉘며 각각 기본 메시지, 매칭신청에 따른 시스템 문자, 매칭확정에 따른 시스템 문자를 의미한다.")
     public ApiResponse<GetChattingsResponse> getChattings(
             @Parameter(hidden = true) @RequestHeader("Authorization") Long userId,
             @PathVariable Long chatRoomId) {
