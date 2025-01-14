@@ -37,7 +37,7 @@ public class GameController {
         return ApiResponse.success(null);
     }
 
-    @PostMapping("/games/{worspaceId}/score")
+    @PostMapping("/games/{workspaceId}/score")
     @Operation(summary = "참여자 별 게임 시작점수와 득점(최종)점수를 입력한다.")
     public ApiResponse<Void> saveScore(
             @Parameter(hidden = true) @RequestHeader("Authorization") Long userId,
