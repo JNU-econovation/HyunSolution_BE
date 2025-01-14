@@ -85,6 +85,7 @@ public class GameService {
     public List<GetGameListResponse> getGameList(Long userId) {
         List<GetGameListResponse> gameList = new ArrayList<>();
 
+        // 사용자 닉네임
         String uid =
                 userRepository
                         .findById(userId)
@@ -96,13 +97,26 @@ public class GameService {
             ChatRoom eachChatRoom = chatLog.getChatRoom();
 
             if (eachChatRoom.isMatched()) {
+                // 상대방 닉네임
                 String opponentNickname =
                         chatLogRepository
                                 .findUidByChatRoomIdAndUserId(eachChatRoom.getId(), userId)
                                 .orElseThrow(() -> new NoSuchElementException("상대가 없는 채팅방입니다."));
+
+                // 게임방 아이디
+                Long workspaceId = eachChatRoom.getWorkspace().getId();
+                // 게임방 승자 유무 및 닉네임
+                List<Game> games = gameRepository.findByWorkspaceId(workspaceId);
+                String winnerNickname = "none";
+                for (Game game : games) {
+                    System.out.println("game.getWinner():" + game.getWinner());
+                    if (game.getWinner() == true) {
+                        winnerNickname = game.getUser().getUid();
+                        break;
+                    }
+                }
                 GetGameListResponse response =
-                        new GetGameListResponse(
-                                eachChatRoom.getWorkspace().getId(), uid, opponentNickname);
+                        new GetGameListResponse(workspaceId, uid, opponentNickname, winnerNickname);
                 gameList.add(response);
             }
         }
