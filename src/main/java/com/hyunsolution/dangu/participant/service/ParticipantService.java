@@ -86,11 +86,12 @@ public class ParticipantService {
                 chatRoomRepository
                         .findById(chatRoomId)
                         .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
-        Chatting chatting= Chatting.builder()
-                            .chatRoom(chatRoom)
-                            .content(uid + "님이 매칭을 신청하셨습니다.")
-                            .messageType(MessageType.SYSTEM)
-                            .build();
+        Chatting chatting =
+                Chatting.builder()
+                        .chatRoom(chatRoom)
+                        .content(uid + "님이 매칭을 신청하셨습니다.")
+                        .messageType(MessageType.SYSTEM)
+                        .build();
         chattingRepository.save(chatting);
 
         // workspaceId 변수 저장
