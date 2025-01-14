@@ -48,7 +48,7 @@ public class GameController {
     }
 
     @GetMapping("/games")
-    @Operation(summary = "대전 페이지에서 경기목록을 조회한다.")
+    @Operation(summary = "대전 페이지에서 경기목록을 조회한다.", description = "게임방 id, 사용자 닉네임, 상대방 닉네임, 승자 닉네임를 응답으로 보내준다. 다만, 승자가 아직 없을 경우에는 'none'을 반환한다.")
     public ApiResponse<List<GetGameListResponse>> getGameList(
             @Parameter(hidden = true) @RequestHeader("Authorization") Long userId) {
         List<GetGameListResponse> response = gameService.getGameList(userId);
