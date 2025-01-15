@@ -38,9 +38,8 @@ public class Game extends BaseEntity {
     @ColumnDefault("1")
     private Integer gameRound;
 
-    @Column(nullable = false)
     @ColumnDefault("false")
-    private Boolean lose;
+    private Boolean winner;
 
     @Column(name = "start_score")
     private Integer startScore;
@@ -59,5 +58,7 @@ public class Game extends BaseEntity {
     private Game(User user, Workspace workspace) {
         this.user = user;
         this.workspace = workspace;
+        this.gameRound = 1;
+        this.winner = false;
     }
 }
