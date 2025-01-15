@@ -20,10 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @AllArgsConstructor
 public class GameService {
     private final UserRepository userRepository;
@@ -109,7 +111,7 @@ public class GameService {
                 List<Game> games = gameRepository.findByWorkspaceId(workspaceId);
                 String winnerNickname = "none";
                 for (Game game : games) {
-                    System.out.println("game.getWinner():" + game.getWinner());
+                    log.info("game.getWinner():" + game.getWinner());
                     if (game.getWinner() == true) {
                         winnerNickname = game.getUser().getUid();
                         break;
@@ -119,9 +121,6 @@ public class GameService {
                         new GetGameListResponse(workspaceId, uid, opponentNickname, winnerNickname);
                 gameList.add(response);
             }
-        }
-        for (GetGameListResponse response : gameList) {
-            System.out.println(response);
         }
         return gameList;
     }
