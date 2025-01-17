@@ -10,7 +10,9 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ParticipantError implements BaseErrorCode {
     PARTICIPANT_NOT_FOUND("PARTICIPANT_400_1", HttpStatus.BAD_REQUEST, "해당 채팅방 참여자를 찾을 수 없습니다."),
-    ALREADY_MATCHED("PARTICIPANT_400_2", HttpStatus.BAD_REQUEST, "이미 매칭된 경우 수락/거절이 불가능합니다."),
+    ALREADY_MATCHED_CANNOT_ACCEPT(
+            "PARTICIPANT_400_2", HttpStatus.BAD_REQUEST, "이미 매칭된 경우 수락/거절이 불가능합니다."),
+    ALREADY_MATCHED("PARTICIPANT_400_3", HttpStatus.BAD_REQUEST, "이미 매칭이 확정된 사용자입니다."),
     ;
 
     private final String code;

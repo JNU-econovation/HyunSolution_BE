@@ -14,8 +14,8 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
 
     // ID별 매칭버튼 클릭 여부
     @Query(
-            "select count(p) > 0 from Participant p where p.id in :ids and p.participantMatch = true")
-    Boolean existsByIdAndParticipantMatchTrue(List<Long> ids);
+            "select count(p) > 0 from Participant p where p.id in :ids and p.participantMatch = false")
+    Boolean existsByIdAndParticipantMatchFalse(List<Long> ids);
 
     // 개인 ID 찾기
     @Query(
@@ -24,8 +24,10 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
     Optional<Participant> findByUserIdAndChatRoomId(
             @Param("id") Long id, @Param("chatRoomId") Long chatRoomId);
 
-    List<Participant> findByChatRoomId(Long chatRoomId);
-
     @Query("SELECT p FROM Participant p WHERE p.user.id =:userId AND p.id IN :participantIds")
     Optional<Participant> findByUserIdInParticipantsId(Long userId, List<Long> participantIds);
+
+    @Query(
+            "SELECT p FROM Participant p WHERE p.chatRoom.isMatched=TRUE AND p.chatRoom.workspace.id=:workspaceId")
+    List<Participant> findByWorkspaceId(Long workspaceId);
 }

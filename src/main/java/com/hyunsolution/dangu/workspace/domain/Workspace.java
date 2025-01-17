@@ -7,16 +7,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class Workspace extends BaseEntity {
@@ -35,6 +33,9 @@ public class Workspace extends BaseEntity {
     @Column(name = "is_matched", nullable = false)
     @ColumnDefault("false")
     private boolean isMatched;
+
+    @Column(name = "table_number")
+    private Integer tableNumber;
 
     @Column(name = "created_at", nullable = false)
     @CreatedDate

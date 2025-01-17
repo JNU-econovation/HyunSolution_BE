@@ -2,6 +2,7 @@ package com.hyunsolution.dangu.chatting.service;
 
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoomRepository;
+import com.hyunsolution.dangu.chatRoom.exception.ChatRoomNotFoundException;
 import com.hyunsolution.dangu.chatlog.domain.ChatLog;
 import com.hyunsolution.dangu.chatlog.domain.ChatLogRepository;
 import com.hyunsolution.dangu.chatlog.exception.ChatLogNotFoundException;
@@ -14,8 +15,8 @@ import com.hyunsolution.dangu.chatting.dto.response.ChatMessageDetailResponse;
 import com.hyunsolution.dangu.chatting.dto.response.ChattingsDto;
 import com.hyunsolution.dangu.chatting.dto.response.GetChatRoomsResponse;
 import com.hyunsolution.dangu.chatting.dto.response.GetChattingsResponse;
-import com.hyunsolution.dangu.chatting.exception.ChatRoomNotFoundException;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
+import com.hyunsolution.dangu.participant.exception.AlreadyMatchedException;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.user.exception.UserNotFoundException;
@@ -42,13 +43,13 @@ public class ChattingService {
 
     @Transactional(readOnly = true)
     public GetChattingsResponse getChattings(Long loginUserId, Long chatRoomId) {
+        validateIsAlreadyMatched(chatRoomId);
         List<Chatting> chattings = chattingRepository.findByChatRoomId(chatRoomId);
         List<ChattingsDto> chattingsDtos =
                 chattings.stream()
                         .map(
                                 chatting -> {
-                                    boolean isOwn =
-                                            isOwn(loginUserId, chatting.getSender().getId());
+                                    boolean isOwn = isOwn(loginUserId, chatting.getSender());
                                     return ChattingsDto.of(
                                             chatting.getContent(),
                                             chatting.getId(),
@@ -57,8 +58,18 @@ public class ChattingService {
                                 })
                         .toList();
 
-        ChatRoom chatRoom = chatRoomRepository.findByChatRoomIdWithFetchJoin(chatRoomId);
+        ChatRoom chatRoom = chatRoomRepository.findByIdWithFetchJoinParticipantsAndUSer(chatRoomId);
         return GetChattingsResponse.of(getOtherPeople(chatRoom, loginUserId), chattingsDtos);
+    }
+
+    private void validateIsAlreadyMatched(Long chatRoomId) {
+        ChatRoom chatRoom =
+                chatRoomRepository
+                        .findById(chatRoomId)
+                        .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
+        if (chatRoom.getWorkspace().isMatched() && !chatRoom.isMatched()) {
+            throw AlreadyMatchedException.EXCEPTION;
+        }
     }
 
     @Transactional(readOnly = true)
@@ -77,8 +88,11 @@ public class ChattingService {
                 .toList();
     }
 
-    private boolean isOwn(Long loginUserId, Long chattingUserId) {
-        return loginUserId.equals(chattingUserId);
+    private boolean isOwn(Long loginUserId, User sender) {
+        if (sender == null) {
+            return false;
+        }
+        return loginUserId.equals(sender.getId());
     }
 
     private List<String> getOtherPeople(ChatRoom chatRoom, Long loginUserId) {
