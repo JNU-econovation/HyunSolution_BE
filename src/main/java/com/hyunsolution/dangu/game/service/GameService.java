@@ -1,24 +1,26 @@
 package com.hyunsolution.dangu.game.service;
 
-import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
-import com.hyunsolution.dangu.chatlog.domain.ChatLog;
 import com.hyunsolution.dangu.chatlog.domain.ChatLogRepository;
 import com.hyunsolution.dangu.game.domain.Game;
 import com.hyunsolution.dangu.game.domain.GameRepository;
+import com.hyunsolution.dangu.game.domain.GameResult;
+import com.hyunsolution.dangu.game.domain.GameResultRepository;
+import com.hyunsolution.dangu.game.dto.GameResultsDto;
+import com.hyunsolution.dangu.game.dto.GetBillingDto;
+import com.hyunsolution.dangu.game.dto.GetGameListDto;
 import com.hyunsolution.dangu.game.dto.request.GetGameScoreRequest;
-import com.hyunsolution.dangu.game.dto.response.EnterGameRoomResponse;
+import com.hyunsolution.dangu.game.dto.response.GetBillingResponse;
 import com.hyunsolution.dangu.game.dto.response.GetGameListResponse;
-import com.hyunsolution.dangu.participant.domain.Participant;
+import com.hyunsolution.dangu.game.dto.response.GetGameResultsResponse;
+import com.hyunsolution.dangu.game.exception.GameNotFoundException;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
-import com.hyunsolution.dangu.workspace.domain.Workspace;
+import com.hyunsolution.dangu.user.exception.UserNotFoundException;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
-import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,95 +35,130 @@ public class GameService {
     private WorkspaceRepository workspaceRepository;
     private ParticipantRepository participantRepository;
     private ChatLogRepository chatLogRepository;
+    private GameResultRepository gameResultRepository;
 
     @Transactional
-    public EnterGameRoomResponse enterGameRoom(Long workspaceId, Long userId) {
-
-        Workspace workspace =
-                workspaceRepository
-                        .findById(workspaceId)
-                        .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
-
-        List<Participant> allUsersInRoom = participantRepository.findByWorkspaceId(workspaceId);
-
-        // 기본 데이터 삽입
-        for (Participant participant : allUsersInRoom) {
-            User user = participant.getUser();
-            Game gameDefault = Game.builder().user(user).workspace(workspace).build();
-            gameRepository.save(gameDefault);
-        }
-
-        // 방장 여부 확인
-        boolean isRoomManager = workspace.getCreator().getId().equals(userId);
-        return new EnterGameRoomResponse(isRoomManager);
+    public void saveTableNumber(Long gameId, int tableNumber) {
+        Game game = findGameById(gameId);
+        game.setTableNumber(tableNumber);
     }
 
     @Transactional
-    public void saveTableNumber(Long workspaceId, int tableNumber) {
-        Workspace workspace =
-                workspaceRepository
-                        .findById(workspaceId)
-                        .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
-
-        workspace.setTableNumber(tableNumber);
-    }
-
-    @Transactional
-    public void saveGameScore(Long workspaceId, Long userId, GetGameScoreRequest request) {
-        Game game = gameRepository.findByWorkspaceIdAndUserId(workspaceId, userId);
-        List<Game> games = gameRepository.findByWorkspaceId(workspaceId);
-        for (Game gamePerPerson : games) {
-            if (gamePerPerson.getEndTime() == null) {
-                gamePerPerson.setEndTime(LocalDateTime.now());
-            } else {
-                break;
-            }
-        }
-
+    public void saveGameScore(Long gameId, GetGameScoreRequest request, Long userId) {
+        Game game = findGameById(gameId);
+        game.setEndTime(LocalDateTime.now());
+        GameResult gameResult = gameResultRepository.findByGameIdAndUserId(gameId, userId);
         // 점수 저장
-        game.setStartScore(request.startScore());
-        game.setFinalScore(request.finalScore());
+        gameResult.setStartScore(request.startScore());
+        gameResult.setFinalScore(request.finalScore());
+
+        if (allGameResultsHaveScores(game)) {
+            saveWinner(game);
+        }
+    }
+
+    private boolean allGameResultsHaveScores(Game game) {
+        return game.getGameResults().stream()
+                .allMatch(gr -> gr.getStartScore() != null && gr.getFinalScore() != null);
+    }
+
+    private void saveWinner(Game game) {
+        game.getGameResults().stream()
+                .max(Comparator.comparing(GameResult::calculateWin))
+                .ifPresent(gameResult -> gameResult.setWinner(true));
     }
 
     @Transactional
     public List<GetGameListResponse> getGameList(Long userId) {
-        List<GetGameListResponse> gameList = new ArrayList<>();
+        List<GetGameListDto> gameListDto = gameResultRepository.findGameListDtoByMyId(userId);
+        return gameListDto.stream()
+                .map(
+                        dto -> {
+                            String myNickname = dto.myself().getUid();
+                            String opponentNickname = dto.opponent().getUid();
+                            String winnerNickname = calculateWinnerNickname(dto);
+                            return new GetGameListResponse(
+                                    dto.gameId(), myNickname, opponentNickname, winnerNickname);
+                        })
+                .toList();
+    }
 
-        // 사용자 닉네임
-        String uid =
-                userRepository
-                        .findById(userId)
-                        .map(user -> user.getUid())
-                        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 사용자입니다."));
-        List<ChatLog> allChatLog = chatLogRepository.findByUserId(userId);
-
-        for (ChatLog chatLog : allChatLog) {
-            ChatRoom eachChatRoom = chatLog.getChatRoom();
-
-            if (eachChatRoom.isMatched()) {
-                // 상대방 닉네임
-                String opponentNickname =
-                        chatLogRepository
-                                .findUidByChatRoomIdAndUserId(eachChatRoom.getId(), userId)
-                                .orElseThrow(() -> new NoSuchElementException("상대가 없는 채팅방입니다."));
-
-                // 게임방 아이디
-                Long workspaceId = eachChatRoom.getWorkspace().getId();
-                // 게임방 승자 유무 및 닉네임
-                List<Game> games = gameRepository.findByWorkspaceId(workspaceId);
-                String winnerNickname = "none";
-                for (Game game : games) {
-                    log.info("game.getWinner():" + game.getWinner());
-                    if (game.getWinner() == true) {
-                        winnerNickname = game.getUser().getUid();
-                        break;
-                    }
-                }
-                GetGameListResponse response =
-                        new GetGameListResponse(workspaceId, uid, opponentNickname, winnerNickname);
-                gameList.add(response);
-            }
+    private String calculateWinnerNickname(GetGameListDto dto) {
+        if (!dto.myWin() && !dto.opponentWin()) {
+            return "none";
         }
-        return gameList;
+        return dto.myWin() ? dto.myself().getUid() : dto.opponent().getUid();
+    }
+
+    @Transactional
+    public void moreGame(Long gameId, List<Long> userIds) {
+        Game game = findGameById(gameId);
+        Integer newGameRound = game.getGameRound() + 1;
+        Game newGame = Game.createGameWithRound(newGameRound, game.getWorkspace());
+        List<GameResult> gameResults =
+                userIds.stream()
+                        .map(
+                                userId -> {
+                                    User user =
+                                            userRepository
+                                                    .findById(userId)
+                                                    .orElseThrow(
+                                                            () -> UserNotFoundException.EXCEPTION);
+                                    return GameResult.builder().game(newGame).user(user).build();
+                                })
+                        .toList();
+        gameRepository.save(newGame);
+        gameResultRepository.saveAll(gameResults);
+    }
+
+    private Game findGameById(Long gameId) {
+        return gameRepository.findById(gameId).orElseThrow(() -> GameNotFoundException.EXCEPTION);
+    }
+
+    public GetGameResultsResponse getGameResults(Long myUserId, Long gameId) {
+        List<GameResult> gameResults = gameResultRepository.findByGameId(gameId);
+        List<GameResultsDto> gameResultsDto =
+                gameResults.stream()
+                        .map(
+                                gameResult -> {
+                                    String nickname = gameResult.getUser().getUid();
+                                    boolean isOwn = gameResult.getUser().getId().equals(myUserId);
+                                    return GameResultsDto.of(nickname, isOwn, gameResult);
+                                })
+                        .toList();
+        long gameTime =
+                gameRepository
+                        .findById(gameId)
+                        .orElseThrow(() -> GameNotFoundException.EXCEPTION)
+                        .getGameTime();
+        Game game = findGameById(gameId);
+        return GetGameResultsResponse.of(game.getWorkspace().getId(), gameResultsDto, gameTime);
+    }
+
+    public GetBillingResponse getBilling(Long myUserId, Long workspaceId) {
+        List<Game> games = gameRepository.findByWorkspaceId(workspaceId);
+
+        List<GetBillingDto> billingDtos =
+                games.stream()
+                        .flatMap(
+                                game ->
+                                        game.getGameResults().stream()
+                                                .filter(
+                                                        gameResult ->
+                                                                gameResult
+                                                                                .getUser()
+                                                                                .getId()
+                                                                                .equals(myUserId)
+                                                                        && !gameResult.getWinner())
+                                                .map(
+                                                        gameResult ->
+                                                                GetBillingDto.of(
+                                                                        game.calculateCost(),
+                                                                        game.getGameRound())))
+                        .toList();
+
+        long totalCost = billingDtos.stream().mapToLong(GetBillingDto::cost).sum();
+
+        return GetBillingResponse.of(totalCost, billingDtos);
     }
 }

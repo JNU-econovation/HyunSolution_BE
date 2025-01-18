@@ -1,9 +1,11 @@
 package com.hyunsolution.dangu.game.domain;
 
 import com.hyunsolution.dangu.common.BaseEntity;
-import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -22,13 +24,6 @@ public class Game extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "user_id",
-            nullable = false,
-            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
             name = "workspace_id",
             nullable = false,
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -38,15 +33,6 @@ public class Game extends BaseEntity {
     @ColumnDefault("1")
     private Integer gameRound;
 
-    @ColumnDefault("false")
-    private Boolean winner;
-
-    @Column(name = "start_score")
-    private Integer startScore;
-
-    @Column(name = "final_score")
-    private Integer finalScore;
-
     @Column(name = "start_time", nullable = false)
     @CreatedDate
     private LocalDateTime startTime;
@@ -54,11 +40,39 @@ public class Game extends BaseEntity {
     @Column(name = "end_time")
     private LocalDateTime endTime;
 
-    @Builder
-    private Game(User user, Workspace workspace) {
-        this.user = user;
+    @Column(name = "tableNumber")
+    private Integer tableNumber;
+
+    @OneToMany(mappedBy = "game", fetch = FetchType.LAZY)
+    private List<GameResult> gameResults = new ArrayList<>();
+
+    private Game(Workspace workspace) {
         this.workspace = workspace;
         this.gameRound = 1;
-        this.winner = false;
+    }
+
+    private Game(Integer gameRound, Workspace workspace) {
+        this.workspace = workspace;
+        this.gameRound = gameRound;
+    }
+
+    public static Game createDefaultGame(Workspace workspace) {
+        return new Game(workspace);
+    }
+
+    public static Game createGameWithRound(Integer gameRound, Workspace workspace) {
+        return new Game(gameRound, workspace);
+    }
+
+    public long getGameTime() {
+        return ChronoUnit.MINUTES.between(startTime, endTime);
+    }
+
+    public long calculateCost() {
+        long gameTime = getGameTime();
+        if (gameTime <= 30) {
+            return 2200 * 3;
+        }
+        return (getGameTime() / 10) * 2200;
     }
 }
