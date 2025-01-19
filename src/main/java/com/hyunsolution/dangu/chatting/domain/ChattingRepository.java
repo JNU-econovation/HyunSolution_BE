@@ -16,6 +16,6 @@ public interface ChattingRepository extends JpaRepository<Chatting, Long> {
             nativeQuery = true)
     String findLastChattingContentByChatRoomId(Long chatRoomId);
 
-    @Query("SELECT COUNT(c) FROM ChatLog c WHERE c.chatRoom.id=:chatRoomId")
+    @Query("SELECT COUNT(c) FROM Chatting c WHERE c.chatRoom.id=:chatRoomId")
     int countMessageByChatRoomId(@Param("chatRoomId") Long chatRoomId);
 }

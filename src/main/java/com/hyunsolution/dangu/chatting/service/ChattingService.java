@@ -7,6 +7,7 @@ import com.hyunsolution.dangu.chatlog.domain.ChatLog;
 import com.hyunsolution.dangu.chatlog.domain.ChatLogRepository;
 import com.hyunsolution.dangu.chatlog.exception.ChatLogNotFoundException;
 import com.hyunsolution.dangu.chatlog.service.ChatlogService;
+import com.hyunsolution.dangu.chatting.domain.ChatSession;
 import com.hyunsolution.dangu.chatting.domain.Chatting;
 import com.hyunsolution.dangu.chatting.domain.ChattingRepository;
 import com.hyunsolution.dangu.chatting.domain.MessageType;
@@ -21,7 +22,9 @@ import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.user.exception.UserNotFoundException;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ChattingService {
+    private final Map<String, ChatSession> chatParticipantInfos = new HashMap<>();
     private final ChattingRepository chattingRepository;
     private final ChatLogRepository chatLogRepository;
     private final WorkspaceRepository workspaceRepository;
@@ -140,5 +144,25 @@ public class ChattingService {
         int messageCnt = chattingRepository.countMessageByChatRoomId(chatRoomId);
         // chatlog 테이블 속 readCount 업데이트
         chatlogService.updateReadCount(chatRoomId, userPk, messageCnt);
+    }
+
+    //  채팅방에 입장했을 때 (웹소켓 연결)
+    public void getChatRoom(String sessionId, Long userId, Long roomId) {
+        chatParticipantInfos.put(sessionId, new ChatSession(userId, roomId));
+        System.out.println("getChatRoom");
+    }
+
+    //  채팅방에 퇴장했을 때 (웹소켓 끊김)
+    public void leaveChatRoom(String sessionId) {
+        for (Map.Entry<String, ChatSession> entry : chatParticipantInfos.entrySet()) {
+            if (entry.getKey().equals(sessionId)) {
+                Long userId = entry.getValue().getUserId();
+                Long roomId = entry.getValue().getRoomId();
+                readMessageCnt(roomId, userId);
+                chatParticipantInfos.remove(sessionId);
+                System.out.println("채팅방에 퇴장했을 때-> userId: " + userId + ", roomId: " + roomId);
+                break;
+            }
+        }
     }
 }
