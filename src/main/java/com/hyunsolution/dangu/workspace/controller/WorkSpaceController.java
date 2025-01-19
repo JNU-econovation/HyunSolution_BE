@@ -1,6 +1,7 @@
 package com.hyunsolution.dangu.workspace.controller;
 
 import com.hyunsolution.dangu.common.apiResponse.ApiResponse;
+import com.hyunsolution.dangu.workspace.dto.response.CheckWorkspaceManager;
 import com.hyunsolution.dangu.workspace.dto.response.GetWorkspacesResponse;
 import com.hyunsolution.dangu.workspace.service.WorkspaceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,5 +36,15 @@ public class WorkSpaceController {
     public ApiResponse<Void> deleteWorkspace(@PathVariable Long workspaceId) {
         workSpaceService.deleteWorkspace(workspaceId);
         return ApiResponse.successResponseNull();
+    }
+
+    @GetMapping("/workspace/{workspaceId}/isRoomManager")
+    @Operation(summary = "워크스페이스의 방장인지 아닌지 확인한다..", description = "워크스페이스의 방장인지 아닌지 확인한다.")
+    public ApiResponse<CheckWorkspaceManager> checkWorkspaceManager(
+            @Parameter(hidden = true) @RequestHeader("Authorization") Long userId,
+            @PathVariable("workspaceId") Long workspaceId) {
+        CheckWorkspaceManager response =
+                workSpaceService.checkWorkspaceManager(workspaceId, userId);
+        return ApiResponse.success(response);
     }
 }
