@@ -17,8 +17,8 @@ public interface ChatLogRepository extends JpaRepository<ChatLog, Long> {
     @Query(
             "UPDATE ChatLog c SET c.readCount=:readCount WHERE c.user.id=:userId AND c.chatRoom.id=:chatRoomId")
     void updateCount(
-            @Param("userId") Long userId,
             @Param("chatRoomId") Long chatRoomId,
+            @Param("userId") Long userId,
             @Param("readCount") int readCount);
 
     // chatLog 속 사용자 id가 포함된 항목 추출

@@ -49,7 +49,7 @@
         }
         const message = document.getElementById('messageInput').value;
         client.send('/app/chat/1', {
-            'Authorization': 1
+            'Authorization': 2
         }, JSON.stringify({message: message}));
         document.getElementById('messageInput').value = ''; // 입력창 초기화
     }
