@@ -26,7 +26,7 @@ public class UserService {
             return new LoginResponse(newUser.getId());
         }
         // 비밀번호 일치 확인
-        if (isMatchPassword(loginUser.get(), password)) {
+        if (isMatchPassword(password, loginUser.get())) {
             return new LoginResponse(loginUser.get().getId());
         } else {
             throw UserWrongPasswordException.USER_WRONG_PASSWORD_EXCEPTION;
@@ -38,7 +38,7 @@ public class UserService {
                 User.builder().uid(uid).password(passwordEncoder.encode(password)).build());
     }
 
-    private boolean isMatchPassword(User loginUser, String encodedPassword) {
-        return passwordEncoder.matches(loginUser.getPassword(), encodedPassword);
+    private boolean isMatchPassword(String rawPwd, User loginUser) {
+        return passwordEncoder.matches(rawPwd, loginUser.getPassword());
     }
 }
