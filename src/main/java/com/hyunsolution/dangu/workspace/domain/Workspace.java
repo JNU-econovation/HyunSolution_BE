@@ -34,9 +34,6 @@ public class Workspace extends BaseEntity {
     @ColumnDefault("false")
     private boolean isMatched;
 
-    @Column(name = "table_number")
-    private Integer tableNumber;
-
     @Column(name = "created_at", nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;
