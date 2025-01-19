@@ -11,8 +11,7 @@ public interface ChattingRepository extends JpaRepository<Chatting, Long> {
 
     @Query(
             value =
-                    "select c.content from chatting c where c.id = ("
-                            + "select MAX(id) from chatting where chat_room_Id = :chatRoomId)",
+                    "select c.content from chatting c where c.chat_room_id = :chatRoomId order by c.id desc limit 1",
             nativeQuery = true)
     String findLastChattingContentByChatRoomId(Long chatRoomId);
 
