@@ -6,6 +6,8 @@ import com.hyunsolution.dangu.chatRoom.exception.ChatRoomNotFoundException;
 import com.hyunsolution.dangu.chatting.domain.Chatting;
 import com.hyunsolution.dangu.chatting.domain.ChattingRepository;
 import com.hyunsolution.dangu.chatting.domain.MessageType;
+import com.hyunsolution.dangu.chatting.dto.response.ChatMessageDetailResponse;
+import com.hyunsolution.dangu.chatting.dto.response.ChatMessageResponse;
 import com.hyunsolution.dangu.common.event.CreateChatRoomEvent;
 import com.hyunsolution.dangu.common.event.EventPublish;
 import com.hyunsolution.dangu.common.event.Events;
@@ -28,6 +30,7 @@ import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +44,7 @@ public class ParticipantService {
     private final ChattingRepository chattingRepository;
     private final GameRepository gameRepository;
     private final GameResultRepository gameResultRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     // 채팅방 생성
     @Transactional
@@ -72,22 +76,27 @@ public class ParticipantService {
 
     @Transactional
     public void updateMatching(Long id, Long chatRoomId, UpdateParticipantMatchRequest request) {
-        // 1. 참가자 조회
+        // 참가자 조회
         Participant participant =
                 participantRepository
                         .findByUserIdAndChatRoomId(id, chatRoomId)
                         .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
 
-        // 2. 이미 매칭된 상태인지 확인
+        // 이미 매칭된 상태인지 확인
         if (participant.getChatRoom().getWorkspace().isMatched()) {
             throw AlreadyMatchedCannotAcceptException.EXCEPTION;
+        }
+
+        // 참가자 매칭 신청 및 취소 메시지 저장
+        String uid = participant.getUser().getUid();
+        String content = uid + "님이 매칭을 신청하셨습니다.";
+        if (participant.isParticipantMatch()) {
+            content = uid + "님이 매칭을 취소하셨습니다.";
         }
 
         // 3. 참가자의 매칭 상태 업데이트
         participant.updateParticipantMatch(request.isMatch());
 
-        // 참가자 매칭 신청 메시지 저장
-        String uid = participant.getUser().getUid();
         ChatRoom chatRoom =
                 chatRoomRepository
                         .findById(chatRoomId)
@@ -95,10 +104,17 @@ public class ParticipantService {
         Chatting chatting =
                 Chatting.builder()
                         .chatRoom(chatRoom)
-                        .content(uid + "님이 매칭을 신청하셨습니다.")
+                        .content(content)
                         .messageType(MessageType.SYSTEM)
                         .build();
         chattingRepository.save(chatting);
+        // STOMP 메세지 전송
+        ChatMessageResponse chatSystemMessage =
+                new ChatMessageResponse(
+                        "success",
+                        new ChatMessageDetailResponse(null, content, MessageType.SYSTEM),
+                        null);
+        messagingTemplate.convertAndSend("/topic/chat/" + chatRoomId, chatSystemMessage);
 
         // workspaceId 변수 저장
         Long workspaceId = chatRoom.getWorkspace().getId();
@@ -126,13 +142,21 @@ public class ParticipantService {
         chatRoom.acceptMatching();
 
         // 매칭 확정 메시지 저장
+        String content = "매칭되었습니다.\n대전에서 게임을 시작하세요";
         Chatting chatting =
                 Chatting.builder()
                         .chatRoom(chatRoom)
-                        .content("매칭되었습니다.\n대전에서 게임을 시작하세요")
+                        .content(content)
                         .messageType(MessageType.STARTGAME)
                         .build();
         chattingRepository.save(chatting);
+        // STOMP 메세지 전송
+        ChatMessageResponse chatSystemMessage =
+                new ChatMessageResponse(
+                        "success",
+                        new ChatMessageDetailResponse(null, content, MessageType.SYSTEM),
+                        null);
+        messagingTemplate.convertAndSend("/topic/chat/" + chatRoomId, chatSystemMessage);
     }
 
     // 채팅방의 매칭을 최종 확정
