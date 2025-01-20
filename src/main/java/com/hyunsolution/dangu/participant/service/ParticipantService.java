@@ -109,12 +109,7 @@ public class ParticipantService {
                         .build();
         chattingRepository.save(chatting);
         // STOMP 메세지 전송
-        ChatMessageResponse chatSystemMessage =
-                new ChatMessageResponse(
-                        "success",
-                        new ChatMessageDetailResponse(null, content, MessageType.SYSTEM),
-                        null);
-        messagingTemplate.convertAndSend("/topic/chat/" + chatRoomId, chatSystemMessage);
+        sendStompSystemMessage(content, chatRoomId);
 
         // workspaceId 변수 저장
         Long workspaceId = chatRoom.getWorkspace().getId();
@@ -151,6 +146,10 @@ public class ParticipantService {
                         .build();
         chattingRepository.save(chatting);
         // STOMP 메세지 전송
+        sendStompSystemMessage(content, chatRoomId);
+    }
+
+    private void sendStompSystemMessage(String content, Long chatRoomId) {
         ChatMessageResponse chatSystemMessage =
                 new ChatMessageResponse(
                         "success",
