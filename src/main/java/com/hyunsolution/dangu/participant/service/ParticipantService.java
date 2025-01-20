@@ -90,7 +90,7 @@ public class ParticipantService {
         // 참가자 매칭 신청 및 취소 메시지 저장
         String uid = participant.getUser().getUid();
         String content = uid + "님이 매칭을 신청하셨습니다.";
-        if (participant.isParticipantMatch()) {
+        if (participant.isParticipantMatch()&& !request.isMatch()) {
             content = uid + "님이 매칭을 취소하셨습니다.";
         }
 
