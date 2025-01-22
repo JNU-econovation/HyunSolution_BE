@@ -77,6 +77,7 @@ public class ChattingService {
         List<ChatRoom> chatRooms =
                 chatRoomRepository.findByParticipantUserIdWithEntityGraph(userId);
         return chatRooms.stream()
+                .filter(chatRoom -> chatRoom.getChatUpdateAt() != null)
                 .sorted(Comparator.comparing(ChatRoom::getChatUpdateAt).reversed())
                 .map(
                         chatRoom ->
