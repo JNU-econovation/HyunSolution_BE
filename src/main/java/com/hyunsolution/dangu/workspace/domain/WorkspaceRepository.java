@@ -12,7 +12,7 @@ public interface WorkspaceRepository extends JpaRepository<Workspace, Long> {
             LocalDateTime startTime, LocalDateTime endTime);
 
     @Query(
-            "select count(w.id) > 0 from Workspace w where w.creator.id = :creatorId and  w.createdAt >= :startTime and w.createdAt <= :endTime and w.isDeleted = false")
+            "select count(w.id) > 0 from Workspace w where w.creator.id = :creatorId and  w.createdAt >= :startTime and w.createdAt <= :endTime and w.isDeleted = false and w.isMatched = false")
     Boolean existsByCreatorIdWithinDay(
             Long creatorId, LocalDateTime startTime, LocalDateTime endTime);
 }
