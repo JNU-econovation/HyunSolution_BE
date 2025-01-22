@@ -77,8 +77,13 @@ public class GameService {
                             String myNickname = dto.myself().getUid();
                             String opponentNickname = dto.opponent().getUid();
                             String winnerNickname = calculateWinnerNickname(dto);
+                            LocalDateTime endTime = dto.date();
                             return new GetGameListResponse(
-                                    dto.gameId(), myNickname, opponentNickname, winnerNickname);
+                                    dto.gameId(),
+                                    myNickname,
+                                    opponentNickname,
+                                    winnerNickname,
+                                    endTime);
                         })
                 .toList();
     }

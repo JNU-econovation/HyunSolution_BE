@@ -15,7 +15,7 @@ public interface GameResultRepository extends JpaRepository<GameResult, Long> {
 
     @Query(
             "SELECT new com.hyunsolution.dangu.game.dto.GetGameListDto("
-                    + "g.id, gr1.user, gr2.user, gr1.winner, gr2.winner) "
+                    + "g.id, gr1.user, gr2.user, gr1.winner, gr2.winner, g.endTime) "
                     + "FROM Game g "
                     + "JOIN GameResult gr1 ON g.id = gr1.game.id "
                     + "LEFT JOIN GameResult gr2 ON g.id = gr2.game.id AND gr1.user.id != gr2.user.id "
