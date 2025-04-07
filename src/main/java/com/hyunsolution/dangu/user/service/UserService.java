@@ -3,6 +3,7 @@ package com.hyunsolution.dangu.user.service;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.user.dto.response.LoginResponse;
+import com.hyunsolution.dangu.user.exception.UserNotFoundException;
 import com.hyunsolution.dangu.user.exception.UserWrongPasswordException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +41,10 @@ public class UserService {
 
     private boolean isMatchPassword(String rawPwd, User loginUser) {
         return passwordEncoder.matches(rawPwd, loginUser.getPassword());
+    }
+
+    public User findUserByUserPK(Long userPK) {
+        return userRepository.findById(userPK).orElseThrow(() -> UserNotFoundException.EXCEPTION);
+
     }
 }
