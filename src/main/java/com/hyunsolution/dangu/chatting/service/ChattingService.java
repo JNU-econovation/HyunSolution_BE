@@ -3,6 +3,7 @@ package com.hyunsolution.dangu.chatting.service;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoomRepository;
 import com.hyunsolution.dangu.chatRoom.exception.ChatRoomNotFoundException;
+import com.hyunsolution.dangu.chatRoom.service.ChatRoomService;
 import com.hyunsolution.dangu.chatlog.domain.ChatLog;
 import com.hyunsolution.dangu.chatlog.domain.ChatLogRepository;
 import com.hyunsolution.dangu.chatlog.exception.ChatLogNotFoundException;
@@ -20,6 +21,7 @@ import com.hyunsolution.dangu.participant.exception.AlreadyMatchedException;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.user.exception.UserNotFoundException;
+import com.hyunsolution.dangu.user.service.UserService;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -38,8 +40,10 @@ public class ChattingService {
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
     private final ChatlogService chatlogService;
+    private final ChatRoomService chatRoomService;
     private final ChatRoomRepository chatRoomRepository;
     private final ParticipantRepository participantRepository;
+    private final UserService userService;
 
     @Transactional(readOnly = true)
     public GetChattingsResponse getChattings(Long loginUserId, Long chatRoomId) {
@@ -120,23 +124,10 @@ public class ChattingService {
     @Transactional
     public ChatMessageDetailResponse sendMessage(Long chatRoomId, String message, Long userPk) {
 
-        ChatRoom chatRoom =
-                chatRoomRepository
-                        .findById(chatRoomId)
-                        .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
-        chatRoom.updateChatTime(); // 채팅 입력 시간에 따른 채팅방 ch_update_at 업데이트
-
-        User user =
-                userRepository.findById(userPk).orElseThrow(() -> UserNotFoundException.EXCEPTION);
-
-        Chatting chatMessage =
-                Chatting.builder().chatRoom(chatRoom).sender(user).content(message).build();
-
-        chattingRepository.save(chatMessage);
-
-        ChatMessageDetailResponse detailResponse =
-                new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT);
-        return detailResponse;
+        ChatRoom chatRoom=chatRoomService.findAndUpdateChatRoom(chatRoomId);
+        User user = userService.findUserByUserPK(userPk);
+        saveMessage(chatRoom,user,message);
+        return buildChatMessage(user,message);
     }
 
     @Transactional
