@@ -130,6 +130,16 @@ public class ChattingService {
         return buildChatMessage(user,message);
     }
 
+    public ChatMessageDetailResponse buildChatMessage(User user, String message) {
+         return new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT);
+    }
+
+    public void saveMessage(ChatRoom chatRoom, User user, String message){
+        Chatting chatMessage =
+                Chatting.builder().chatRoom(chatRoom).sender(user).content(message).build();
+        chattingRepository.save(chatMessage);
+    }
+
     @Transactional
     public void readMessageCnt(Long chatRoomId, Long userPk) {
         // 채팅방 나갈 시점에서의 메세지 개수 조회
