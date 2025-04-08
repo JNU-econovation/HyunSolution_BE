@@ -47,33 +47,25 @@ public class ChattingService {
 
     @Transactional(readOnly = true)
     public GetChattingsResponse getChattings(Long loginUserId, Long chatRoomId) {
-        validateIsAlreadyMatched(chatRoomId);
+        chatRoomService.validateIsAlreadyMatched(chatRoomId);
         List<Chatting> chattings = chattingRepository.findByChatRoomId(chatRoomId);
-        List<ChattingsDto> chattingsDtos =
-                chattings.stream()
-                        .map(
-                                chatting -> {
-                                    boolean isOwn = isOwn(loginUserId, chatting.getSender());
-                                    return ChattingsDto.of(
-                                            chatting.getContent(),
-                                            chatting.getId(),
-                                            isOwn,
-                                            chatting.getMessageType());
-                                })
-                        .toList();
-
+        List<ChattingsDto> chattingsDtos = convertToChattingsDto(chattings, loginUserId);
         ChatRoom chatRoom = chatRoomRepository.findByIdWithFetchJoinParticipantsAndUSer(chatRoomId);
         return GetChattingsResponse.of(getOtherPeople(chatRoom, loginUserId), chattingsDtos);
     }
 
-    private void validateIsAlreadyMatched(Long chatRoomId) {
-        ChatRoom chatRoom =
-                chatRoomRepository
-                        .findById(chatRoomId)
-                        .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
-        if (chatRoom.getWorkspace().isMatched() && !chatRoom.isMatched()) {
-            throw AlreadyMatchedException.EXCEPTION;
-        }
+    private List<ChattingsDto> convertToChattingsDto(List<Chatting> chattings, Long loginUserId) {
+        return chattings.stream()
+                .map(
+                        chatting -> {
+                            boolean isOwn = isOwn(loginUserId, chatting.getSender());
+                            return ChattingsDto.of(
+                                    chatting.getContent(),
+                                    chatting.getId(),
+                                    isOwn,
+                                    chatting.getMessageType());
+                        })
+                .toList();
     }
 
     @Transactional(readOnly = true)
