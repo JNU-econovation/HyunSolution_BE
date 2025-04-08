@@ -116,10 +116,11 @@ public class ChattingService {
     @Transactional
     public ChatMessageDetailResponse sendMessage(Long chatRoomId, String message, Long userPk) {
 
-        ChatRoom chatRoom=chatRoomService.findAndUpdateChatRoom(chatRoomId);
+        ChatRoom chatRoom = chatRoomService.findChatRoom(chatRoomId);
+        chatRoomService.updateChatRoom(chatRoom);
         User user = userService.findUserByUserPK(userPk);
-        saveMessage(chatRoom,user,message);
-        return buildChatMessage(user,message);
+        saveMessage(chatRoom, user, message);
+        return buildChatMessage(user, message);
     }
 
     public ChatMessageDetailResponse buildChatMessage(User user, String message) {
