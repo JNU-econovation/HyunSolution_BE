@@ -1,6 +1,8 @@
 package com.hyunsolution.dangu.chatlog.service;
 
+import com.hyunsolution.dangu.chatlog.domain.ChatLog;
 import com.hyunsolution.dangu.chatlog.domain.ChatLogRepository;
+import com.hyunsolution.dangu.chatlog.exception.ChatLogNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,5 +16,11 @@ public class ChatlogService {
     @Transactional
     public void updateReadCount(Long chatRoomId, Long userPk, int messageCnt) {
         chatLogRepository.updateCount(chatRoomId, userPk, messageCnt);
+    }
+
+    public ChatLog findChatLong(Long chatRoomId, Long userPk) {
+        return chatLogRepository
+                .findByChatRoomIdAndUserId(chatRoomId, userPk)
+                .orElseThrow(() -> ChatLogNotFoundException.EXCEPTION);
     }
 }
