@@ -2,11 +2,9 @@ package com.hyunsolution.dangu.chatting.service;
 
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoomRepository;
-import com.hyunsolution.dangu.chatRoom.exception.ChatRoomNotFoundException;
 import com.hyunsolution.dangu.chatRoom.service.ChatRoomService;
 import com.hyunsolution.dangu.chatlog.domain.ChatLog;
 import com.hyunsolution.dangu.chatlog.domain.ChatLogRepository;
-import com.hyunsolution.dangu.chatlog.exception.ChatLogNotFoundException;
 import com.hyunsolution.dangu.chatlog.service.ChatlogService;
 import com.hyunsolution.dangu.chatting.domain.ChatSession;
 import com.hyunsolution.dangu.chatting.domain.Chatting;
@@ -17,10 +15,8 @@ import com.hyunsolution.dangu.chatting.dto.response.ChattingsDto;
 import com.hyunsolution.dangu.chatting.dto.response.GetChatRoomsResponse;
 import com.hyunsolution.dangu.chatting.dto.response.GetChattingsResponse;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
-import com.hyunsolution.dangu.participant.exception.AlreadyMatchedException;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
-import com.hyunsolution.dangu.user.exception.UserNotFoundException;
 import com.hyunsolution.dangu.user.service.UserService;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import java.util.Comparator;
@@ -28,11 +24,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChattingService {
     private final Map<String, ChatSession> chatParticipantInfos = new HashMap<>();
     private final ChattingRepository chattingRepository;
@@ -124,13 +122,14 @@ public class ChattingService {
     }
 
     public ChatMessageDetailResponse buildChatMessage(User user, String message) {
-         return new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT);
+        return new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT);
     }
 
     public void saveMessage(ChatRoom chatRoom, User user, String message){
         Chatting chatMessage =
                 Chatting.builder().chatRoom(chatRoom).sender(user).content(message).build();
         chattingRepository.save(chatMessage);
+        return chatMessage;
     }
 
     @Transactional
@@ -142,20 +141,20 @@ public class ChattingService {
     }
 
     //  채팅방에 입장했을 때 (웹소켓 연결)
-    public void getChatRoom(String sessionId, Long userId, Long roomId) {
-        chatParticipantInfos.put(sessionId, new ChatSession(userId, roomId));
-        System.out.println("getChatRoom");
+    public void getChatRoom(String sessionId, Long userPk, Long roomId) {
+        chatParticipantInfos.put(sessionId, new ChatSession(userPk, roomId));
+        log.info("getChatRoom");
     }
 
-    //  채팅방에 퇴장했을 때 (웹소켓 끊김)
+    // ⚠️ 채팅방에 퇴장했을 때 (웹소켓 끊김)
     public void leaveChatRoom(String sessionId) {
         for (Map.Entry<String, ChatSession> entry : chatParticipantInfos.entrySet()) {
             if (entry.getKey().equals(sessionId)) {
-                Long userId = entry.getValue().getUserId();
+                Long userPk = entry.getValue().getUserId();
                 Long roomId = entry.getValue().getRoomId();
-                readMessageCnt(roomId, userId);
+                readMessageCnt(roomId, userPk);
                 chatParticipantInfos.remove(sessionId);
-                System.out.println("채팅방에 퇴장했을 때-> userId: " + userId + ", roomId: " + roomId);
+                System.out.println("채팅방에 퇴장했을 때-> userPk: " + userPk + ", roomId: " + roomId);
                 break;
             }
         }
