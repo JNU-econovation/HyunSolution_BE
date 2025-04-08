@@ -45,6 +45,5 @@ public class UserService {
 
     public User findUserByUserPK(Long userPK) {
         return userRepository.findById(userPK).orElseThrow(() -> UserNotFoundException.EXCEPTION);
-
     }
 }
