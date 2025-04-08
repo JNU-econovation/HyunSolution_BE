@@ -122,7 +122,7 @@ public class ChattingService {
         return new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT);
     }
 
-    public void saveMessage(ChatRoom chatRoom, User user, String message){
+    public Chatting saveMessage(ChatRoom chatRoom, User user, String message) {
         Chatting chatMessage =
                 Chatting.builder().chatRoom(chatRoom).sender(user).content(message).build();
         chattingRepository.save(chatMessage);
