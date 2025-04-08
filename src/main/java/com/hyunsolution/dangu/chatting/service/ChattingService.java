@@ -101,11 +101,8 @@ public class ChattingService {
         return chattingRepository.findLastChattingContentByChatRoomId(chatRoomId);
     }
 
-    private int getUnReadCount(Long chatRoomId, Long userId) {
-        ChatLog chatLog =
-                chatLogRepository
-                        .findByChatRoomIdAndUserId(chatRoomId, userId)
-                        .orElseThrow(() -> ChatLogNotFoundException.EXCEPTION);
+    private int getUnReadCount(Long chatRoomId, Long userPk) {
+        ChatLog chatLog = chatlogService.findChatLong(chatRoomId, userPk);
         int total = chattingRepository.findByChatRoomId(chatRoomId).size();
         int read = chatLog.getReadCount();
         return total - read;
