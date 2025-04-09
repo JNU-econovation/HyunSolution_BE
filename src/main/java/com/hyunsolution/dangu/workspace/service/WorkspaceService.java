@@ -3,6 +3,7 @@ package com.hyunsolution.dangu.workspace.service;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.user.exception.UserNotFoundException;
+import com.hyunsolution.dangu.user.service.UserService;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import com.hyunsolution.dangu.workspace.dto.response.CheckWorkspaceManager;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class WorkspaceService {
     private final WorkspaceRepository workSpaceRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @Transactional(readOnly = true)
     public CheckWorkspaceManager checkWorkspaceManager(Long workspaceId, Long userId) {
@@ -35,9 +37,15 @@ public class WorkspaceService {
 
     // 게임방 등록
     @Transactional
-    public void addWorkspace(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> UserNotFoundException.EXCEPTION);
+    public void addWorkspace(Long userPK) {
+
+        User user = userService.findUserByUserPK(userPK);
         validateAlreadyExists(user.getId());
+        buildAndSaveWorkspace(user);
+    }
+
+    @Transactional
+    public void buildAndSaveWorkspace(User user) {
         Workspace workSpace = Workspace.builder().creator(user).build();
         workSpaceRepository.save(workSpace);
     }
