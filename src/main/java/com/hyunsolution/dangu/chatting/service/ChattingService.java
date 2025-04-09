@@ -73,13 +73,7 @@ public class ChattingService {
         return chatRooms.stream()
                 .filter(chatRoom -> chatRoom.getChatUpdateAt() != null)
                 .sorted(Comparator.comparing(ChatRoom::getChatUpdateAt).reversed())
-                .map(
-                        chatRoom ->
-                                GetChatRoomsResponse.of(
-                                        chatRoom.getId(),
-                                        getLastMessage(chatRoom.getId()),
-                                        getOtherPeople(chatRoom, userId),
-                                        getUnReadCount(chatRoom.getId(), userId)))
+                .map(chatRoom-> chatRoomService.buildGetChatRoomsResponse(chatRoom, userId))
                 .toList();
     }
 
@@ -90,18 +84,18 @@ public class ChattingService {
         return loginUserId.equals(sender.getId());
     }
 
-    private List<String> getOtherPeople(ChatRoom chatRoom, Long loginUserId) {
+    public List<String> getOtherPeople(ChatRoom chatRoom, Long loginUserId) {
         return chatRoom.getParticipants().stream()
                 .filter(participant -> !participant.getUser().getId().equals(loginUserId))
                 .map(participant -> participant.getUser().getUid())
                 .toList();
     }
 
-    private String getLastMessage(Long chatRoomId) {
+    public String getLastMessage(Long chatRoomId) {
         return chattingRepository.findLastChattingContentByChatRoomId(chatRoomId);
     }
 
-    private int getUnReadCount(Long chatRoomId, Long userPk) {
+    public int getUnReadCount(Long chatRoomId, Long userPk) {
         ChatLog chatLog = chatlogService.findChatLong(chatRoomId, userPk);
         int total = chattingRepository.findByChatRoomId(chatRoomId).size();
         int read = chatLog.getReadCount();
