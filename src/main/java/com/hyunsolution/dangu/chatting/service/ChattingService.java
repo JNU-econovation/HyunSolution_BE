@@ -151,7 +151,7 @@ public class ChattingService {
                 Long roomId = entry.getValue().getRoomId();
                 readMessageCnt(roomId, userPk);
                 chatParticipantInfos.remove(sessionId);
-                System.out.println("채팅방에 퇴장했을 때-> userPk: " + userPk + ", roomId: " + roomId);
+                log.info("채팅방에 퇴장했을 때-> userPk: " + userPk + ", roomId: " + roomId);
                 break;
             }
         }
