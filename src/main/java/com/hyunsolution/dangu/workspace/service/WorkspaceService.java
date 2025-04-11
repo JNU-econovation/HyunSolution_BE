@@ -2,7 +2,6 @@ package com.hyunsolution.dangu.workspace.service;
 
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
-import com.hyunsolution.dangu.user.exception.UserNotFoundException;
 import com.hyunsolution.dangu.user.service.UserService;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
@@ -41,7 +40,7 @@ public class WorkspaceService {
 
         User user = userService.findUser(userPK);
         validateAlreadyExists(user.getId());
-        Workspace workspace= buildWorkspace(user);
+        Workspace workspace = buildWorkspace(user);
         workSpaceRepository.save(workspace);
     }
 
@@ -54,9 +53,12 @@ public class WorkspaceService {
         LocalDateTime startTime = LocalDateTime.now().minusDays(1);
         LocalDateTime endTime = LocalDateTime.now();
         log.info("startTime " + startTime + " / endTime" + endTime);
-        return getUnmatchedWorkspacesWithinPeriod(startTime,endTime,userId);
+        return getUnmatchedWorkspacesWithinPeriod(startTime, endTime, userId);
     }
-    public List<GetWorkspacesResponse> getUnmatchedWorkspacesWithinPeriod (LocalDateTime startTime,LocalDateTime endTime, Long userId) {
+
+    @Transactional(readOnly = true)
+    public List<GetWorkspacesResponse> getUnmatchedWorkspacesWithinPeriod(
+            LocalDateTime startTime, LocalDateTime endTime, Long userId) {
         return workSpaceRepository.findUnmatchedAndCreatedWithinDay(startTime, endTime).stream()
                 .map(
                         workspace ->
