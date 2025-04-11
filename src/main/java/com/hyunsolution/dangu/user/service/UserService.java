@@ -46,7 +46,7 @@ public class UserService {
         return passwordEncoder.matches(rawPwd, loginUser.getPassword());
     }
 
-    public User findUserByUserPK(Long userPK) {
-        return userRepository.findById(userPK).orElseThrow(() -> UserNotFoundException.EXCEPTION);
+    public User findUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> UserNotFoundException.EXCEPTION);
     }
 }

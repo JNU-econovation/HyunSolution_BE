@@ -103,11 +103,11 @@ public class ChattingService {
     }
 
     @Transactional
-    public ChatMessageDetailResponse sendMessage(Long chatRoomId, String message, Long userPk) {
+    public ChatMessageDetailResponse sendMessage(Long chatRoomId, String message, Long userId) {
 
         ChatRoom chatRoom = chatRoomService.findChatRoom(chatRoomId);
         chatRoomService.updateChatRoom(chatRoom);
-        User user = userService.findUserByUserPK(userPk);
+        User user = userService.findUser(userId);
         saveMessage(chatRoom, user, message);
         return buildChatMessage(user, message);
     }
@@ -124,16 +124,16 @@ public class ChattingService {
     }
 
     @Transactional
-    public void readMessageCnt(Long chatRoomId, Long userPk) {
+    public void readMessageCnt(Long chatRoomId, Long userId) {
         // 채팅방 나갈 시점에서의 메세지 개수 조회
         int messageCnt = chattingRepository.countMessageByChatRoomId(chatRoomId);
         // chatlog 테이블 속 readCount 업데이트
-        chatlogService.updateReadCount(chatRoomId, userPk, messageCnt);
+        chatlogService.updateReadCount(chatRoomId, userId, messageCnt);
     }
 
     //  채팅방에 입장했을 때 (웹소켓 연결)
-    public void getChatRoom(String sessionId, Long userPk, Long roomId) {
-        chatParticipantInfos.put(sessionId, new ChatSession(userPk, roomId));
+    public void getChatRoom(String sessionId, Long userId, Long roomId) {
+        chatParticipantInfos.put(sessionId, new ChatSession(userId, roomId));
         log.info("getChatRoom");
     }
 
@@ -141,11 +141,11 @@ public class ChattingService {
     public void leaveChatRoom(String sessionId) {
         for (Map.Entry<String, ChatSession> entry : chatParticipantInfos.entrySet()) {
             if (entry.getKey().equals(sessionId)) {
-                Long userPk = entry.getValue().getUserId();
+                Long userId = entry.getValue().getUserId();
                 Long roomId = entry.getValue().getRoomId();
-                readMessageCnt(roomId, userPk);
+                readMessageCnt(roomId, userId);
                 chatParticipantInfos.remove(sessionId);
-                log.info("채팅방에 퇴장했을 때-> userPk: " + userPk + ", roomId: " + roomId);
+                log.info("채팅방에 퇴장했을 때-> userPk: " + userId + ", roomId: " + roomId);
                 break;
             }
         }
