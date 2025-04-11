@@ -111,6 +111,19 @@ public class ParticipantService {
                 .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
     }
     @Transactional(readOnly = true)
+    public Participant findParticipant(Long userId) {
+        return participantRepository
+                .findById(userId)
+                .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
+    }
+    @Transactional(readOnly = true)
+    public Participant findParticipant(Long userId, List<Long> participantIds) {
+        return participantRepository
+                .findByUserIdInParticipantsId(userId, participantIds)
+                .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
+    }
+
+    @Transactional(readOnly = true)
     public void isAlreadyMatched(Participant participant) {
         if (participant.getChatRoom().getWorkspace().isMatched()) {
             throw AlreadyMatchedCannotAcceptException.EXCEPTION;
