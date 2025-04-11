@@ -39,31 +39,34 @@ public class WorkspaceService {
     @Transactional
     public void addWorkspace(Long userPK) {
 
-        User user = userService.findUserByUserPK(userPK);
+        User user = userService.findUser(userPK);
         validateAlreadyExists(user.getId());
-        buildWorkspace(user);
+        Workspace workspace= buildWorkspace(user);
+        workSpaceRepository.save(workspace);
     }
 
-    @Transactional
-    public void buildWorkspace(User user) {
-        Workspace workSpace = Workspace.builder().creator(user).build();
+    public Workspace buildWorkspace(User user) {
+        return Workspace.builder().creator(user).build();
     }
-//-----------------------------
+
     @Transactional(readOnly = true)
-    public List<GetWorkspacesResponse> getWorkspaces(Long loginUserId) {
+    public List<GetWorkspacesResponse> getWorkspaces(Long userId) {
         LocalDateTime startTime = LocalDateTime.now().minusDays(1);
         LocalDateTime endTime = LocalDateTime.now();
         log.info("startTime " + startTime + " / endTime" + endTime);
+        return getUnmatchedWorkspacesWithinPeriod(startTime,endTime,userId);
+    }
+    public List<GetWorkspacesResponse> getUnmatchedWorkspacesWithinPeriod (LocalDateTime startTime,LocalDateTime endTime, Long userId) {
         return workSpaceRepository.findUnmatchedAndCreatedWithinDay(startTime, endTime).stream()
                 .map(
                         workspace ->
                                 GetWorkspacesResponse.of(
                                         workspace.getId(),
                                         workspace.getCreator().getUid(),
-                                        isOwn(loginUserId, workspace)))
+                                        isOwn(userId, workspace)))
                 .toList();
     }
-//-----------------
+
     private void validateAlreadyExists(Long creatorId) {
         LocalDateTime startTime = LocalDateTime.now().minusDays(1);
         LocalDateTime endTime = LocalDateTime.now();
@@ -73,8 +76,8 @@ public class WorkspaceService {
         }
     }
 
-    private boolean isOwn(Long loginUserId, Workspace workspace) {
-        return loginUserId.equals(workspace.getCreator().getId());
+    private boolean isOwn(Long userId, Workspace workspace) {
+        return userId.equals(workspace.getCreator().getId());
     }
 
     // 게임방 등록 취소
