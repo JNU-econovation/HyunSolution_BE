@@ -9,6 +9,7 @@ import com.hyunsolution.dangu.chatting.domain.ChattingRepository;
 import com.hyunsolution.dangu.chatting.domain.MessageType;
 import com.hyunsolution.dangu.chatting.dto.response.ChatMessageDetailResponse;
 import com.hyunsolution.dangu.chatting.dto.response.ChatMessageResponse;
+import com.hyunsolution.dangu.chatting.service.ChattingService;
 import com.hyunsolution.dangu.common.event.CreateChatRoomEvent;
 import com.hyunsolution.dangu.common.event.EventPublish;
 import com.hyunsolution.dangu.common.event.Events;
@@ -52,6 +53,7 @@ public class ParticipantService {
     private final WorkspaceService workspaceService;
     private final UserService userService;
     private final ChatRoomService chatRoomService;
+    private final ChattingService chattingService;
 
     // 채팅방 생성
     @Transactional
@@ -70,50 +72,56 @@ public class ParticipantService {
         return new EnterChatRoomResponse(chatRoom.getId());
     }
 
-    private String createSystemMessage(Participant participant, UpdateParticipantMatchRequest request) {
-        String uid = participant.getUser().getUid();
-        return participant.isParticipantMatch() && !request.isMatch()
-                ? uid + "님이 매칭을 신청하셨습니다."
-                : uid + "님이 매칭을 취소하셨습니다.";
-    }
     @Transactional
-    public void updateMatching(Long id, Long chatRoomId, UpdateParticipantMatchRequest request) {
+    public void updateMatching(Long userId, Long chatRoomId, UpdateParticipantMatchRequest request) {
         // 참가자 조회
-        Participant participant =
-                participantRepository
-                        .findByUserIdAndChatRoomId(id, chatRoomId)
-                        .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
+        Participant participant = findParticipant(userId, chatRoomId);
 
         // 이미 매칭된 상태인지 확인
-        if (participant.getChatRoom().getWorkspace().isMatched()) {
-            throw AlreadyMatchedCannotAcceptException.EXCEPTION;
-        }
+        isAlreadyMatched(participant);
 
         // 참가자 매칭 신청 및 취소 메시지 저장
         String content = createSystemMessage(participant, request);
 
-        // 3. 참가자의 매칭 상태 업데이트
+        //참가자의 매칭 상태 업데이트
         participant.updateParticipantMatch(request.isMatch());
 
         ChatRoom chatRoom =chatRoomService.findChatRoom(chatRoomId);
-        Chatting chatting =
-                Chatting.builder()
-                        .chatRoom(chatRoom)
-                        .content(content)
-                        .messageType(MessageType.SYSTEM)
-                        .build();
+        Chatting chatting = chattingService.buildChatMessage(chatRoom,content,MessageType.SYSTEM);
+
         chattingRepository.save(chatting);
         // STOMP 메세지 전송
         sendStompSystemMessage(content, chatRoomId);
 
         // workspaceId 변수 저장
-        Long workspaceId = chatRoom.getWorkspace().getId();
+        Long workspaceId = workspaceService.findWorkspace(chatRoom.getWorkspace().getId()).getId();
         List<Participant> participants = participantRepository.findIdByChatRoomId(chatRoomId);
-        // 4. 매칭 요청 처리
+
+        //매칭 요청 처리
         if (request.isMatch() && allParticipantsMatched(participants)) {
             finalizeChatRoomMatching(chatRoomId);
             finalizeWorkspaceMatching(workspaceId, participants);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Participant findParticipant(Long userId, Long chatRoomId) {
+        return participantRepository
+                .findByUserIdAndChatRoomId(userId, chatRoomId)
+                .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
+    }
+    @Transactional(readOnly = true)
+    public void isAlreadyMatched(Participant participant) {
+        if (participant.getChatRoom().getWorkspace().isMatched()) {
+            throw AlreadyMatchedCannotAcceptException.EXCEPTION;
+        }
+    }
+
+    private String createSystemMessage(Participant participant, UpdateParticipantMatchRequest request) {
+        String uid = participant.getUser().getUid();
+        return participant.isParticipantMatch() && !request.isMatch()
+                ? uid + "님이 매칭을 신청하셨습니다."
+                : uid + "님이 매칭을 취소하셨습니다.";
     }
 
     // 모든 참가자가 매칭되었는지 확인
