@@ -73,7 +73,7 @@ public class ChattingService {
         return chatRooms.stream()
                 .filter(chatRoom -> chatRoom.getChatUpdateAt() != null)
                 .sorted(Comparator.comparing(ChatRoom::getChatUpdateAt).reversed())
-                .map(chatRoom -> chatRoomService.buildGetChatRoomsResponse(chatRoom, userId))
+                .map(chatRoom -> buildGetChatRoomsResponse(chatRoom, userId))
                 .toList();
     }
 
@@ -82,6 +82,14 @@ public class ChattingService {
             return false;
         }
         return loginUserId.equals(sender.getId());
+    }
+
+    public GetChatRoomsResponse buildGetChatRoomsResponse(ChatRoom chatRoom, Long userId) {
+        return GetChatRoomsResponse.of(
+                chatRoom.getId(),
+                getLastMessage(chatRoom.getId()),
+                getOtherPeople(chatRoom, userId),
+                getUnReadCount(chatRoom.getId(), userId));
     }
 
     public List<String> getOtherPeople(ChatRoom chatRoom, Long loginUserId) {
@@ -133,17 +141,17 @@ public class ChattingService {
         log.info("getChatRoom");
     }
 
-    // ⚠️ 채팅방에 퇴장했을 때 (웹소켓 끊김)
+    // 채팅방에 퇴장했을 때 (웹소켓 끊김)
     public void leaveChatRoom(String sessionId) {
-        for (Map.Entry<String, ChatSession> entry : chatParticipantInfos.entrySet()) {
-            if (entry.getKey().equals(sessionId)) {
-                Long userId = entry.getValue().getUserId();
-                Long roomId = entry.getValue().getRoomId();
-                readMessageCnt(roomId, userId);
-                chatParticipantInfos.remove(sessionId);
-                log.info("채팅방에 퇴장했을 때-> userPk: " + userId + ", roomId: " + roomId);
-                break;
-            }
+        ChatSession chatSession = chatParticipantInfos.get(sessionId);
+        if (chatSession != null) {
+            readMessageCnt(chatSession.getRoomId(), chatSession.getUserId());
+            chatParticipantInfos.remove(sessionId);
+            log.info(
+                    "채팅방에 퇴장했을 때-> userPk: "
+                            + chatSession.getUserId()
+                            + ", roomId: "
+                            + chatSession.getRoomId());
         }
     }
 }
