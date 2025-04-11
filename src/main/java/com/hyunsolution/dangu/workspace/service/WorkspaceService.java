@@ -26,12 +26,16 @@ public class WorkspaceService {
 
     @Transactional(readOnly = true)
     public CheckWorkspaceManager checkWorkspaceManager(Long workspaceId, Long userId) {
-        Workspace workspace =
-                workSpaceRepository
-                        .findById(workspaceId)
-                        .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
+        Workspace workspace = findWorkspace(workspaceId);
         boolean isRoomManager = workspace.getCreator().getId().equals(userId);
         return new CheckWorkspaceManager(isRoomManager);
+    }
+
+    @Transactional(readOnly = true)
+    public Workspace findWorkspace(Long workspaceId) {
+        return workSpaceRepository
+                .findById(workspaceId)
+                .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
     }
 
     // 게임방 등록
