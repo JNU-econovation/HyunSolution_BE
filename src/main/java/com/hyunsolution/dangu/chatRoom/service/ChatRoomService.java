@@ -3,7 +3,6 @@ package com.hyunsolution.dangu.chatRoom.service;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoomRepository;
 import com.hyunsolution.dangu.chatRoom.exception.ChatRoomNotFoundException;
-import com.hyunsolution.dangu.chatting.service.ChattingService;
 import com.hyunsolution.dangu.participant.exception.AlreadyMatchedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
-    private final ChattingService chattingService;
 
     public ChatRoom findChatRoom(Long chatRoomId) {
         ChatRoom chatRoom =
