@@ -170,18 +170,17 @@ public class ParticipantService {
     @Transactional
     // 채팅방의 매칭을 최종 확정
     public void finalizeWorkspaceMatching(Long workspaceId, List<Participant> participants) {
-        Workspace workspace =
-                workspaceRepository
-                        .findById(workspaceId)
-                        .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
+        Workspace workspace = workspaceService.findWorkspace(workspaceId);
         workspace.acceptMatchingFinal();
-        Game gameDefault = Game.createDefaultGame(workspace);
-        Game savedGame = gameRepository.save(gameDefault);
+        Game game= gameService.createAndSaveDefaultGame(workspace);
+        saveGameResult(game, participants);
+    }
 
+    public void saveGameResult(Game game, List<Participant> participants) {
         participants.forEach(
                 participant -> {
                     User user = participant.getUser();
-                    GameResult gameResult = GameResult.builder().game(savedGame).user(user).build();
+                    GameResult gameResult = GameResult.builder().game(game).user(user).build();
                     gameResultRepository.save(gameResult);
                 });
     }
