@@ -140,30 +140,28 @@ public class GameService {
         return GetGameResultsResponse.of(game.getWorkspace().getId(), gameResultsDto, gameTime);
     }
 
-    public GetBillingResponse getBilling(Long myUserId, Long workspaceId) {
+    public GetBillingResponse getBilling(Long userId, Long workspaceId) {
         List<Game> games = gameRepository.findByWorkspaceId(workspaceId);
-
-        List<GetBillingDto> billingDtos =
-                games.stream()
-                        .flatMap(
-                                game ->
-                                        game.getGameResults().stream()
-                                                .filter(
-                                                        gameResult ->
-                                                                gameResult
-                                                                                .getUser()
-                                                                                .getId()
-                                                                                .equals(myUserId)
-                                                                        && !gameResult.getWinner())
-                                                .map(
-                                                        gameResult ->
-                                                                GetBillingDto.of(
-                                                                        game.calculateCost(),
-                                                                        game.getGameRound())))
-                        .toList();
-
+        List<GetBillingDto> billingDtos = getBillingDtos(games, userId);
         long totalCost = billingDtos.stream().mapToLong(GetBillingDto::cost).sum();
-
         return GetBillingResponse.of(totalCost, billingDtos);
+    }
+
+    private List<GetBillingDto> getBillingDtos(List<Game> games, Long userId) {
+        return games.stream()
+                .flatMap(
+                        game ->
+                                game.getGameResults().stream()
+                                        .filter(gameResult -> isLoser(gameResult, userId))
+                                        .map(gameResult -> buildGetBillingDto(game)))
+                .toList();
+    }
+
+    private boolean isLoser(GameResult result, Long userId) {
+        return result.getUser().getId().equals(userId) && !result.getWinner();
+    }
+
+    private GetBillingDto buildGetBillingDto(Game game) {
+        return GetBillingDto.of(game.calculateCost(), game.getGameRound());
     }
 }
