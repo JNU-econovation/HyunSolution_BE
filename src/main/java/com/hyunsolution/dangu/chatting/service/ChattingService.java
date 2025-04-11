@@ -108,18 +108,14 @@ public class ChattingService {
         ChatRoom chatRoom = chatRoomService.findChatRoom(chatRoomId);
         chatRoomService.updateChatRoom(chatRoom);
         User user = userService.findUser(userId);
-        saveMessage(chatRoom, user, message);
-        return buildChatMessage(user, message);
+        Chatting chatMessage=buildChatMessage(chatRoom, user, message);
+        chattingRepository.save(chatMessage);
+        return new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT) ;
     }
 
-    public ChatMessageDetailResponse buildChatMessage(User user, String message) {
-        return new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT);
-    }
-
-    public Chatting saveMessage(ChatRoom chatRoom, User user, String message) {
+    public Chatting buildChatMessage(ChatRoom chatRoom, User user, String message) {
         Chatting chatMessage =
                 Chatting.builder().chatRoom(chatRoom).sender(user).content(message).build();
-        chattingRepository.save(chatMessage);
         return chatMessage;
     }
 
