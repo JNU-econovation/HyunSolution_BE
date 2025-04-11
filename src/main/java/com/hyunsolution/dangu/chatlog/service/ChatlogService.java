@@ -18,7 +18,7 @@ public class ChatlogService {
         chatLogRepository.updateCount(chatRoomId, userPk, messageCnt);
     }
 
-    public ChatLog findChatLong(Long chatRoomId, Long userPk) {
+    public ChatLog findChatLog(Long chatRoomId, Long userPk) {
         return chatLogRepository
                 .findByChatRoomIdAndUserId(chatRoomId, userPk)
                 .orElseThrow(() -> ChatLogNotFoundException.EXCEPTION);
