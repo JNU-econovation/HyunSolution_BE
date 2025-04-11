@@ -96,7 +96,7 @@ public class ChattingService {
     }
 
     public int getUnReadCount(Long chatRoomId, Long userPk) {
-        ChatLog chatLog = chatlogService.findChatLong(chatRoomId, userPk);
+        ChatLog chatLog = chatlogService.findChatLog(chatRoomId, userPk);
         int total = chattingRepository.findByChatRoomId(chatRoomId).size();
         int read = chatLog.getReadCount();
         return total - read;
