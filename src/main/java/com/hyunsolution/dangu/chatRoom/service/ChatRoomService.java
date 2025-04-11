@@ -3,7 +3,6 @@ package com.hyunsolution.dangu.chatRoom.service;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoomRepository;
 import com.hyunsolution.dangu.chatRoom.exception.ChatRoomNotFoundException;
-import com.hyunsolution.dangu.chatting.dto.response.GetChatRoomsResponse;
 import com.hyunsolution.dangu.chatting.service.ChattingService;
 import com.hyunsolution.dangu.participant.exception.AlreadyMatchedException;
 import lombok.RequiredArgsConstructor;
@@ -34,14 +33,6 @@ public class ChatRoomService {
         if (chatRoom.getWorkspace().isMatched() && !chatRoom.isMatched()) {
             throw AlreadyMatchedException.EXCEPTION;
         }
-    }
-
-    public GetChatRoomsResponse buildGetChatRoomsResponse(ChatRoom chatRoom, Long userId) {
-        return GetChatRoomsResponse.of(
-                chatRoom.getId(),
-                chattingService.getLastMessage(chatRoom.getId()),
-                chattingService.getOtherPeople(chatRoom, userId),
-                chattingService.getUnReadCount(chatRoom.getId(), userId));
     }
 
     public void validateIsAlreadyMatched(Long chatRoomId) {
