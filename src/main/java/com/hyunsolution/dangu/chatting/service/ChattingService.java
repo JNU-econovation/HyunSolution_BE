@@ -154,4 +154,12 @@ public class ChattingService {
                             + chatSession.getRoomId());
         }
     }
+
+    public Chatting buildChatMessage(ChatRoom chatRoom, String content, MessageType messageType) {
+        return Chatting.builder()
+                .chatRoom(chatRoom)
+                .content(content)
+                .messageType(messageType)
+                .build();
+    }
 }
