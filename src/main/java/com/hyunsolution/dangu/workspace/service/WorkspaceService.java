@@ -41,20 +41,18 @@ public class WorkspaceService {
 
         User user = userService.findUserByUserPK(userPK);
         validateAlreadyExists(user.getId());
-        buildAndSaveWorkspace(user);
+        buildWorkspace(user);
     }
 
     @Transactional
-    public void buildAndSaveWorkspace(User user) {
+    public void buildWorkspace(User user) {
         Workspace workSpace = Workspace.builder().creator(user).build();
-        workSpaceRepository.save(workSpace);
     }
-
+//-----------------------------
     @Transactional(readOnly = true)
     public List<GetWorkspacesResponse> getWorkspaces(Long loginUserId) {
         LocalDateTime startTime = LocalDateTime.now().minusDays(1);
         LocalDateTime endTime = LocalDateTime.now();
-
         log.info("startTime " + startTime + " / endTime" + endTime);
         return workSpaceRepository.findUnmatchedAndCreatedWithinDay(startTime, endTime).stream()
                 .map(
@@ -65,7 +63,7 @@ public class WorkspaceService {
                                         isOwn(loginUserId, workspace)))
                 .toList();
     }
-
+//-----------------
     private void validateAlreadyExists(Long creatorId) {
         LocalDateTime startTime = LocalDateTime.now().minusDays(1);
         LocalDateTime endTime = LocalDateTime.now();
