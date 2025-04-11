@@ -17,6 +17,7 @@ import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.user.service.UserService;
+import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -162,4 +163,10 @@ public class GameService {
     private GetBillingDto buildGetBillingDto(Game game) {
         return GetBillingDto.of(game.calculateCost(), game.getGameRound());
     }
+
+    public Game createAndSaveDefaultGame(Workspace workspace) {
+        Game gameDefault = Game.createDefaultGame(workspace);
+        return gameRepository.save(gameDefault);
+    }
+
 }

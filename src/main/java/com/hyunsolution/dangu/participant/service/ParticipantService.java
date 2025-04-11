@@ -152,12 +152,7 @@ public class ParticipantService {
 
         // 매칭 확정 메시지 저장
         String content = "매칭되었습니다.\n대전에서 게임을 시작하세요";
-        Chatting chatting =
-                Chatting.builder()
-                        .chatRoom(chatRoom)
-                        .content(content)
-                        .messageType(MessageType.STARTGAME)
-                        .build();
+        Chatting chatting = chattingService.buildChatMessage(chatRoom,content,MessageType.STARTGAME);
         chattingRepository.save(chatting);
         // STOMP 메세지 전송
         sendStompSystemMessage(content, chatRoomId);
