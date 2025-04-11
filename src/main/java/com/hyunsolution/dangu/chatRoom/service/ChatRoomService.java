@@ -38,10 +38,10 @@ public class ChatRoomService {
 
     public GetChatRoomsResponse buildGetChatRoomsResponse(ChatRoom chatRoom, Long userId) {
         return GetChatRoomsResponse.of(
-                                chatRoom.getId(),
-                                chattingService.getLastMessage(chatRoom.getId()),
-                                chattingService.getOtherPeople(chatRoom, userId),
-                                chattingService.getUnReadCount(chatRoom.getId(), userId));
+                chatRoom.getId(),
+                chattingService.getLastMessage(chatRoom.getId()),
+                chattingService.getOtherPeople(chatRoom, userId),
+                chattingService.getUnReadCount(chatRoom.getId(), userId));
     }
 
     public void validateIsAlreadyMatched(Long chatRoomId) {

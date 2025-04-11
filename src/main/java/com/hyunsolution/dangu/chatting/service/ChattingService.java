@@ -73,7 +73,7 @@ public class ChattingService {
         return chatRooms.stream()
                 .filter(chatRoom -> chatRoom.getChatUpdateAt() != null)
                 .sorted(Comparator.comparing(ChatRoom::getChatUpdateAt).reversed())
-                .map(chatRoom-> chatRoomService.buildGetChatRoomsResponse(chatRoom, userId))
+                .map(chatRoom -> chatRoomService.buildGetChatRoomsResponse(chatRoom, userId))
                 .toList();
     }
 
@@ -108,9 +108,9 @@ public class ChattingService {
         ChatRoom chatRoom = chatRoomService.findChatRoom(chatRoomId);
         chatRoomService.updateChatRoom(chatRoom);
         User user = userService.findUser(userId);
-        Chatting chatMessage=buildChatMessage(chatRoom, user, message);
+        Chatting chatMessage = buildChatMessage(chatRoom, user, message);
         chattingRepository.save(chatMessage);
-        return new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT) ;
+        return new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT);
     }
 
     public Chatting buildChatMessage(ChatRoom chatRoom, User user, String message) {

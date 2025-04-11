@@ -5,7 +5,6 @@ import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.user.dto.response.LoginResponse;
 import com.hyunsolution.dangu.user.exception.UserNotFoundException;
 import com.hyunsolution.dangu.user.exception.UserWrongPasswordException;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,9 +18,10 @@ public class UserService {
 
     @Transactional
     public LoginResponse login(String uid, String password) {
-        return userRepository.findByUid(uid)
-                .map(user ->loginIfMatchPassword(user,password) ) //유저 존재시 비번 체크&로그인 처리
-                .orElse(registerAndLogin(uid,password)); //유저가 없으면 회원가입&로그인 처리
+        return userRepository
+                .findByUid(uid)
+                .map(user -> loginIfMatchPassword(user, password)) // 유저 존재시 비번 체크&로그인 처리
+                .orElse(registerAndLogin(uid, password)); // 유저가 없으면 회원가입&로그인 처리
     }
 
     private LoginResponse registerAndLogin(String uid, String password) {
