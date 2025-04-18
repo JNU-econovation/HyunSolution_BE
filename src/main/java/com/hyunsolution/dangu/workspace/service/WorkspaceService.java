@@ -2,7 +2,7 @@ package com.hyunsolution.dangu.workspace.service;
 
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
-import com.hyunsolution.dangu.user.exception.UserNotFoundException;
+import com.hyunsolution.dangu.user.service.UserService;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import com.hyunsolution.dangu.workspace.dto.response.CheckWorkspaceManager;
@@ -22,39 +22,54 @@ import org.springframework.transaction.annotation.Transactional;
 public class WorkspaceService {
     private final WorkspaceRepository workSpaceRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @Transactional(readOnly = true)
     public CheckWorkspaceManager checkWorkspaceManager(Long workspaceId, Long userId) {
-        Workspace workspace =
-                workSpaceRepository
-                        .findById(workspaceId)
-                        .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
+        Workspace workspace = findWorkspace(workspaceId);
         boolean isRoomManager = workspace.getCreator().getId().equals(userId);
         return new CheckWorkspaceManager(isRoomManager);
     }
 
+    @Transactional(readOnly = true)
+    public Workspace findWorkspace(Long workspaceId) {
+        return workSpaceRepository
+                .findById(workspaceId)
+                .orElseThrow(() -> WorkspaceNotFoundException.EXCEPTION);
+    }
+
     // 게임방 등록
     @Transactional
-    public void addWorkspace(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> UserNotFoundException.EXCEPTION);
+    public void addWorkspace(Long userPK) {
+
+        User user = userService.findUser(userPK);
         validateAlreadyExists(user.getId());
-        Workspace workSpace = Workspace.builder().creator(user).build();
-        workSpaceRepository.save(workSpace);
+        Workspace workspace = buildWorkspace(user);
+        workSpaceRepository.save(workspace);
+    }
+
+    public Workspace buildWorkspace(User user) {
+        return Workspace.builder().creator(user).build();
     }
 
     @Transactional(readOnly = true)
-    public List<GetWorkspacesResponse> getWorkspaces(Long loginUserId) {
+    public List<GetWorkspacesResponse> getWorkspaces(Long userId) {
         LocalDateTime startTime = LocalDateTime.now().minusDays(1);
         LocalDateTime endTime = LocalDateTime.now();
-
         log.info("startTime " + startTime + " / endTime" + endTime);
+        return getUnmatchedWorkspacesWithinPeriod(startTime, endTime, userId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<GetWorkspacesResponse> getUnmatchedWorkspacesWithinPeriod(
+            LocalDateTime startTime, LocalDateTime endTime, Long userId) {
         return workSpaceRepository.findUnmatchedAndCreatedWithinDay(startTime, endTime).stream()
                 .map(
                         workspace ->
                                 GetWorkspacesResponse.of(
                                         workspace.getId(),
                                         workspace.getCreator().getUid(),
-                                        isOwn(loginUserId, workspace)))
+                                        isOwn(userId, workspace)))
                 .toList();
     }
 
@@ -67,8 +82,8 @@ public class WorkspaceService {
         }
     }
 
-    private boolean isOwn(Long loginUserId, Workspace workspace) {
-        return loginUserId.equals(workspace.getCreator().getId());
+    private boolean isOwn(Long userId, Workspace workspace) {
+        return userId.equals(workspace.getCreator().getId());
     }
 
     // 게임방 등록 취소

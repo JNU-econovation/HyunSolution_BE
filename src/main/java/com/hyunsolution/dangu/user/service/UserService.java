@@ -3,8 +3,8 @@ package com.hyunsolution.dangu.user.service;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
 import com.hyunsolution.dangu.user.dto.response.LoginResponse;
+import com.hyunsolution.dangu.user.exception.UserNotFoundException;
 import com.hyunsolution.dangu.user.exception.UserWrongPasswordException;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,17 +17,21 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
-    // TODO: 왜 트랜잭션 어노테이션을 붙이는지 공부하기(with flush가 언제 일어나나) - 다현
     public LoginResponse login(String uid, String password) {
-        Optional<User> loginUser = userRepository.findByUid(uid);
-        // 사용자 존재 여부 판단
-        if (loginUser.isEmpty()) {
-            User newUser = registerUser(uid, password);
-            return new LoginResponse(newUser.getId());
-        }
-        // 비밀번호 일치 확인
-        if (isMatchPassword(password, loginUser.get())) {
-            return new LoginResponse(loginUser.get().getId());
+        return userRepository
+                .findByUid(uid)
+                .map(user -> loginIfMatchPassword(user, password)) // 유저 존재시 비번 체크&로그인 처리
+                .orElse(registerAndLogin(uid, password)); // 유저가 없으면 회원가입&로그인 처리
+    }
+
+    private LoginResponse registerAndLogin(String uid, String password) {
+        User newUser = registerUser(uid, password);
+        return new LoginResponse(newUser.getId());
+    }
+
+    private LoginResponse loginIfMatchPassword(User user, String password) {
+        if (isMatchPassword(password, user)) {
+            return new LoginResponse(user.getId());
         } else {
             throw UserWrongPasswordException.USER_WRONG_PASSWORD_EXCEPTION;
         }
@@ -40,5 +44,9 @@ public class UserService {
 
     private boolean isMatchPassword(String rawPwd, User loginUser) {
         return passwordEncoder.matches(rawPwd, loginUser.getPassword());
+    }
+
+    public User findUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> UserNotFoundException.EXCEPTION);
     }
 }

@@ -2,13 +2,11 @@ package com.hyunsolution.dangu.user.domain;
 
 import com.hyunsolution.dangu.common.BaseEntity;
 import javax.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     @Id

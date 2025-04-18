@@ -2,10 +2,9 @@ package com.hyunsolution.dangu.chatting.service;
 
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoomRepository;
-import com.hyunsolution.dangu.chatRoom.exception.ChatRoomNotFoundException;
+import com.hyunsolution.dangu.chatRoom.service.ChatRoomService;
 import com.hyunsolution.dangu.chatlog.domain.ChatLog;
 import com.hyunsolution.dangu.chatlog.domain.ChatLogRepository;
-import com.hyunsolution.dangu.chatlog.exception.ChatLogNotFoundException;
 import com.hyunsolution.dangu.chatlog.service.ChatlogService;
 import com.hyunsolution.dangu.chatting.domain.ChatSession;
 import com.hyunsolution.dangu.chatting.domain.Chatting;
@@ -16,21 +15,22 @@ import com.hyunsolution.dangu.chatting.dto.response.ChattingsDto;
 import com.hyunsolution.dangu.chatting.dto.response.GetChatRoomsResponse;
 import com.hyunsolution.dangu.chatting.dto.response.GetChattingsResponse;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
-import com.hyunsolution.dangu.participant.exception.AlreadyMatchedException;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
-import com.hyunsolution.dangu.user.exception.UserNotFoundException;
+import com.hyunsolution.dangu.user.service.UserService;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChattingService {
     private final Map<String, ChatSession> chatParticipantInfos = new HashMap<>();
     private final ChattingRepository chattingRepository;
@@ -38,38 +38,32 @@ public class ChattingService {
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
     private final ChatlogService chatlogService;
+    private final ChatRoomService chatRoomService;
     private final ChatRoomRepository chatRoomRepository;
     private final ParticipantRepository participantRepository;
+    private final UserService userService;
 
     @Transactional(readOnly = true)
     public GetChattingsResponse getChattings(Long loginUserId, Long chatRoomId) {
-        validateIsAlreadyMatched(chatRoomId);
+        chatRoomService.validateIsAlreadyMatched(chatRoomId);
         List<Chatting> chattings = chattingRepository.findByChatRoomId(chatRoomId);
-        List<ChattingsDto> chattingsDtos =
-                chattings.stream()
-                        .map(
-                                chatting -> {
-                                    boolean isOwn = isOwn(loginUserId, chatting.getSender());
-                                    return ChattingsDto.of(
-                                            chatting.getContent(),
-                                            chatting.getId(),
-                                            isOwn,
-                                            chatting.getMessageType());
-                                })
-                        .toList();
-
+        List<ChattingsDto> chattingsDtos = convertToChattingsDto(chattings, loginUserId);
         ChatRoom chatRoom = chatRoomRepository.findByIdWithFetchJoinParticipantsAndUSer(chatRoomId);
         return GetChattingsResponse.of(getOtherPeople(chatRoom, loginUserId), chattingsDtos);
     }
 
-    private void validateIsAlreadyMatched(Long chatRoomId) {
-        ChatRoom chatRoom =
-                chatRoomRepository
-                        .findById(chatRoomId)
-                        .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
-        if (chatRoom.getWorkspace().isMatched() && !chatRoom.isMatched()) {
-            throw AlreadyMatchedException.EXCEPTION;
-        }
+    private List<ChattingsDto> convertToChattingsDto(List<Chatting> chattings, Long loginUserId) {
+        return chattings.stream()
+                .map(
+                        chatting -> {
+                            boolean isOwn = isOwn(loginUserId, chatting.getSender());
+                            return ChattingsDto.of(
+                                    chatting.getContent(),
+                                    chatting.getId(),
+                                    isOwn,
+                                    chatting.getMessageType());
+                        })
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -79,13 +73,7 @@ public class ChattingService {
         return chatRooms.stream()
                 .filter(chatRoom -> chatRoom.getChatUpdateAt() != null)
                 .sorted(Comparator.comparing(ChatRoom::getChatUpdateAt).reversed())
-                .map(
-                        chatRoom ->
-                                GetChatRoomsResponse.of(
-                                        chatRoom.getId(),
-                                        getLastMessage(chatRoom.getId()),
-                                        getOtherPeople(chatRoom, userId),
-                                        getUnReadCount(chatRoom.getId(), userId)))
+                .map(chatRoom -> buildGetChatRoomsResponse(chatRoom, userId))
                 .toList();
     }
 
@@ -96,74 +84,82 @@ public class ChattingService {
         return loginUserId.equals(sender.getId());
     }
 
-    private List<String> getOtherPeople(ChatRoom chatRoom, Long loginUserId) {
+    public GetChatRoomsResponse buildGetChatRoomsResponse(ChatRoom chatRoom, Long userId) {
+        return GetChatRoomsResponse.of(
+                chatRoom.getId(),
+                getLastMessage(chatRoom.getId()),
+                getOtherPeople(chatRoom, userId),
+                getUnReadCount(chatRoom.getId(), userId));
+    }
+
+    public List<String> getOtherPeople(ChatRoom chatRoom, Long loginUserId) {
         return chatRoom.getParticipants().stream()
                 .filter(participant -> !participant.getUser().getId().equals(loginUserId))
                 .map(participant -> participant.getUser().getUid())
                 .toList();
     }
 
-    private String getLastMessage(Long chatRoomId) {
+    public String getLastMessage(Long chatRoomId) {
         return chattingRepository.findLastChattingContentByChatRoomId(chatRoomId);
     }
 
-    private int getUnReadCount(Long chatRoomId, Long userId) {
-        ChatLog chatLog =
-                chatLogRepository
-                        .findByChatRoomIdAndUserId(chatRoomId, userId)
-                        .orElseThrow(() -> ChatLogNotFoundException.EXCEPTION);
+    public int getUnReadCount(Long chatRoomId, Long userPk) {
+        ChatLog chatLog = chatlogService.findChatLog(chatRoomId, userPk);
         int total = chattingRepository.findByChatRoomId(chatRoomId).size();
         int read = chatLog.getReadCount();
         return total - read;
     }
 
     @Transactional
-    public ChatMessageDetailResponse sendMessage(Long chatRoomId, String message, Long userPk) {
+    public ChatMessageDetailResponse sendMessage(Long chatRoomId, String message, Long userId) {
 
-        ChatRoom chatRoom =
-                chatRoomRepository
-                        .findById(chatRoomId)
-                        .orElseThrow(() -> ChatRoomNotFoundException.EXCEPTION);
-        chatRoom.updateChatTime(); // 채팅 입력 시간에 따른 채팅방 ch_update_at 업데이트
+        ChatRoom chatRoom = chatRoomService.findChatRoom(chatRoomId);
+        chatRoomService.updateChatRoom(chatRoom);
+        User user = userService.findUser(userId);
+        Chatting chatMessage = buildChatMessage(chatRoom, user, message);
+        chattingRepository.save(chatMessage);
+        return new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT);
+    }
 
-        User user =
-                userRepository.findById(userPk).orElseThrow(() -> UserNotFoundException.EXCEPTION);
-
+    public Chatting buildChatMessage(ChatRoom chatRoom, User user, String message) {
         Chatting chatMessage =
                 Chatting.builder().chatRoom(chatRoom).sender(user).content(message).build();
-
-        chattingRepository.save(chatMessage);
-
-        ChatMessageDetailResponse detailResponse =
-                new ChatMessageDetailResponse(user.getUid(), message, MessageType.TEXT);
-        return detailResponse;
+        return chatMessage;
     }
 
     @Transactional
-    public void readMessageCnt(Long chatRoomId, Long userPk) {
+    public void readMessageCnt(Long chatRoomId, Long userId) {
         // 채팅방 나갈 시점에서의 메세지 개수 조회
         int messageCnt = chattingRepository.countMessageByChatRoomId(chatRoomId);
         // chatlog 테이블 속 readCount 업데이트
-        chatlogService.updateReadCount(chatRoomId, userPk, messageCnt);
+        chatlogService.updateReadCount(chatRoomId, userId, messageCnt);
     }
 
     //  채팅방에 입장했을 때 (웹소켓 연결)
     public void getChatRoom(String sessionId, Long userId, Long roomId) {
         chatParticipantInfos.put(sessionId, new ChatSession(userId, roomId));
-        System.out.println("getChatRoom");
+        log.info("getChatRoom");
     }
 
-    //  채팅방에 퇴장했을 때 (웹소켓 끊김)
+    // 채팅방에 퇴장했을 때 (웹소켓 끊김)
     public void leaveChatRoom(String sessionId) {
-        for (Map.Entry<String, ChatSession> entry : chatParticipantInfos.entrySet()) {
-            if (entry.getKey().equals(sessionId)) {
-                Long userId = entry.getValue().getUserId();
-                Long roomId = entry.getValue().getRoomId();
-                readMessageCnt(roomId, userId);
-                chatParticipantInfos.remove(sessionId);
-                System.out.println("채팅방에 퇴장했을 때-> userId: " + userId + ", roomId: " + roomId);
-                break;
-            }
+        ChatSession chatSession = chatParticipantInfos.get(sessionId);
+        if (chatSession != null) {
+            readMessageCnt(chatSession.getRoomId(), chatSession.getUserId());
+            chatParticipantInfos.remove(sessionId);
+            log.info(
+                    "채팅방에 퇴장했을 때-> userPk: "
+                            + chatSession.getUserId()
+                            + ", roomId: "
+                            + chatSession.getRoomId());
         }
+    }
+
+    public Chatting buildChatMessage(ChatRoom chatRoom, String content, MessageType messageType) {
+        return Chatting.builder()
+                .chatRoom(chatRoom)
+                .content(content)
+                .messageType(messageType)
+                .build();
     }
 }

@@ -16,7 +16,8 @@ import com.hyunsolution.dangu.game.exception.GameNotFoundException;
 import com.hyunsolution.dangu.participant.domain.ParticipantRepository;
 import com.hyunsolution.dangu.user.domain.User;
 import com.hyunsolution.dangu.user.domain.UserRepository;
-import com.hyunsolution.dangu.user.exception.UserNotFoundException;
+import com.hyunsolution.dangu.user.service.UserService;
+import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -31,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @AllArgsConstructor
 public class GameService {
     private final UserRepository userRepository;
+    private final UserService userService;
     private GameRepository gameRepository;
     private WorkspaceRepository workspaceRepository;
     private ParticipantRepository participantRepository;
@@ -53,7 +55,7 @@ public class GameService {
         gameResult.setFinalScore(request.finalScore());
 
         if (allGameResultsHaveScores(game)) {
-            saveWinner(game);
+            setWinner(game);
         }
     }
 
@@ -62,7 +64,7 @@ public class GameService {
                 .allMatch(gr -> gr.getStartScore() != null && gr.getFinalScore() != null);
     }
 
-    private void saveWinner(Game game) {
+    private void setWinner(Game game) {
         game.getGameResults().stream()
                 .max(Comparator.comparing(GameResult::calculateWin))
                 .ifPresent(gameResult -> gameResult.setWinner(true));
@@ -88,7 +90,9 @@ public class GameService {
                 .toList();
     }
 
+
     private String calculateWinnerNickname(GetGameListDto dto) {
+
         if (!dto.myWin() && !dto.opponentWin()) {
             return "none";
         }
@@ -100,70 +104,69 @@ public class GameService {
         Game game = findGameById(gameId);
         Integer newGameRound = game.getGameRound() + 1;
         Game newGame = Game.createGameWithRound(newGameRound, game.getWorkspace());
-        List<GameResult> gameResults =
-                userIds.stream()
-                        .map(
-                                userId -> {
-                                    User user =
-                                            userRepository
-                                                    .findById(userId)
-                                                    .orElseThrow(
-                                                            () -> UserNotFoundException.EXCEPTION);
-                                    return GameResult.builder().game(newGame).user(user).build();
-                                })
-                        .toList();
+        List<GameResult> gameResults = buildGameResult(userIds, newGame);
         gameRepository.save(newGame);
         gameResultRepository.saveAll(gameResults);
+    }
+
+    public List<GameResult> buildGameResult(List<Long> userIds, Game newGame) {
+        return userIds.stream()
+                .map(
+                        userId -> {
+                            User user = userService.findUser(userId);
+                            return GameResult.builder().game(newGame).user(user).build();
+                        })
+                .toList();
     }
 
     private Game findGameById(Long gameId) {
         return gameRepository.findById(gameId).orElseThrow(() -> GameNotFoundException.EXCEPTION);
     }
 
-    public GetGameResultsResponse getGameResults(Long myUserId, Long gameId) {
+    public GetGameResultsResponse getGameResults(Long userId, Long gameId) {
         List<GameResult> gameResults = gameResultRepository.findByGameId(gameId);
         List<GameResultsDto> gameResultsDto =
                 gameResults.stream()
                         .map(
                                 gameResult -> {
                                     String nickname = gameResult.getUser().getUid();
-                                    boolean isOwn = gameResult.getUser().getId().equals(myUserId);
+                                    boolean isOwn = gameResult.getUser().getId().equals(userId);
                                     return GameResultsDto.of(nickname, isOwn, gameResult);
                                 })
                         .toList();
-        long gameTime =
-                gameRepository
-                        .findById(gameId)
-                        .orElseThrow(() -> GameNotFoundException.EXCEPTION)
-                        .getGameTime();
         Game game = findGameById(gameId);
+        long gameTime = game.getGameTime();
         return GetGameResultsResponse.of(game.getWorkspace().getId(), gameResultsDto, gameTime);
     }
 
-    public GetBillingResponse getBilling(Long myUserId, Long workspaceId) {
+    public GetBillingResponse getBilling(Long userId, Long workspaceId) {
         List<Game> games = gameRepository.findByWorkspaceId(workspaceId);
-
-        List<GetBillingDto> billingDtos =
-                games.stream()
-                        .flatMap(
-                                game ->
-                                        game.getGameResults().stream()
-                                                .filter(
-                                                        gameResult ->
-                                                                gameResult
-                                                                                .getUser()
-                                                                                .getId()
-                                                                                .equals(myUserId)
-                                                                        && !gameResult.getWinner())
-                                                .map(
-                                                        gameResult ->
-                                                                GetBillingDto.of(
-                                                                        game.calculateCost(),
-                                                                        game.getGameRound())))
-                        .toList();
-
+        List<GetBillingDto> billingDtos = getBillingDtos(games, userId);
         long totalCost = billingDtos.stream().mapToLong(GetBillingDto::cost).sum();
-
         return GetBillingResponse.of(totalCost, billingDtos);
     }
+
+    private List<GetBillingDto> getBillingDtos(List<Game> games, Long userId) {
+        return games.stream()
+                .flatMap(
+                        game ->
+                                game.getGameResults().stream()
+                                        .filter(gameResult -> isLoser(gameResult, userId))
+                                        .map(gameResult -> buildGetBillingDto(game)))
+                .toList();
+    }
+
+    private boolean isLoser(GameResult result, Long userId) {
+        return result.getUser().getId().equals(userId) && !result.getWinner();
+    }
+
+    private GetBillingDto buildGetBillingDto(Game game) {
+        return GetBillingDto.of(game.calculateCost(), game.getGameRound());
+    }
+
+    public Game createAndSaveDefaultGame(Workspace workspace) {
+        Game gameDefault = Game.createDefaultGame(workspace);
+        return gameRepository.save(gameDefault);
+    }
+
 }
