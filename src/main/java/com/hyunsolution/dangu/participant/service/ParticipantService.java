@@ -2,7 +2,6 @@ package com.hyunsolution.dangu.participant.service;
 
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoom;
 import com.hyunsolution.dangu.chatRoom.domain.ChatRoomRepository;
-import com.hyunsolution.dangu.chatRoom.exception.ChatRoomNotFoundException;
 import com.hyunsolution.dangu.chatRoom.service.ChatRoomService;
 import com.hyunsolution.dangu.chatting.domain.Chatting;
 import com.hyunsolution.dangu.chatting.domain.ChattingRepository;
@@ -31,10 +30,8 @@ import com.hyunsolution.dangu.user.exception.UserNotFoundException;
 import com.hyunsolution.dangu.user.service.UserService;
 import com.hyunsolution.dangu.workspace.domain.Workspace;
 import com.hyunsolution.dangu.workspace.domain.WorkspaceRepository;
-import com.hyunsolution.dangu.workspace.exception.WorkspaceNotFoundException;
-import java.util.List;
-
 import com.hyunsolution.dangu.workspace.service.WorkspaceService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -64,7 +61,7 @@ public class ParticipantService {
         User visitor =
                 userRepository.findById(userId).orElseThrow(() -> UserNotFoundException.EXCEPTION);
         Workspace workspace = workspaceService.findWorkspace(workspaceId);
-        Long creatorId =workspace.getCreator().getId();
+        Long creatorId = workspace.getCreator().getId();
         User creator = userService.findUser(creatorId);
 
         // 채팅방 생성
@@ -75,7 +72,8 @@ public class ParticipantService {
     }
 
     @Transactional
-    public void updateMatching(Long userId, Long chatRoomId, UpdateParticipantMatchRequest request) {
+    public void updateMatching(
+            Long userId, Long chatRoomId, UpdateParticipantMatchRequest request) {
         // 참가자 조회
         Participant participant = findParticipant(userId, chatRoomId);
 
@@ -85,11 +83,11 @@ public class ParticipantService {
         // 참가자 매칭 신청 및 취소 메시지 저장
         String content = createSystemMessage(participant, request);
 
-        //참가자의 매칭 상태 업데이트
+        // 참가자의 매칭 상태 업데이트
         participant.updateParticipantMatch(request.isMatch());
 
-        ChatRoom chatRoom =chatRoomService.findChatRoom(chatRoomId);
-        Chatting chatting = chattingService.buildChatMessage(chatRoom,content,MessageType.SYSTEM);
+        ChatRoom chatRoom = chatRoomService.findChatRoom(chatRoomId);
+        Chatting chatting = chattingService.buildChatMessage(chatRoom, content, MessageType.SYSTEM);
 
         chattingRepository.save(chatting);
         // STOMP 메세지 전송
@@ -99,7 +97,7 @@ public class ParticipantService {
         Long workspaceId = workspaceService.findWorkspace(chatRoom.getWorkspace().getId()).getId();
         List<Participant> participants = participantRepository.findIdByChatRoomId(chatRoomId);
 
-        //매칭 요청 처리
+        // 매칭 요청 처리
         if (request.isMatch() && allParticipantsMatched(participants)) {
             finalizeChatRoomMatching(chatRoomId);
             finalizeWorkspaceMatching(workspaceId, participants);
@@ -112,12 +110,14 @@ public class ParticipantService {
                 .findByUserIdAndChatRoomId(userId, chatRoomId)
                 .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
     }
+
     @Transactional(readOnly = true)
     public Participant findParticipant(Long userId) {
         return participantRepository
                 .findById(userId)
                 .orElseThrow(() -> ParticipantNotFoundException.EXCEPTION);
     }
+
     @Transactional(readOnly = true)
     public Participant findParticipant(Long userId, List<Long> participantIds) {
         return participantRepository
@@ -132,7 +132,8 @@ public class ParticipantService {
         }
     }
 
-    private String createSystemMessage(Participant participant, UpdateParticipantMatchRequest request) {
+    private String createSystemMessage(
+            Participant participant, UpdateParticipantMatchRequest request) {
         String uid = participant.getUser().getUid();
         return participant.isParticipantMatch() && !request.isMatch()
                 ? uid + "님이 매칭을 신청하셨습니다."
@@ -148,13 +149,14 @@ public class ParticipantService {
     @Transactional
     // 채팅방의 매칭을 최종 확정
     public void finalizeChatRoomMatching(Long chatRoomId) {
-        ChatRoom chatRoom =chatRoomService.findChatRoom(chatRoomId);
+        ChatRoom chatRoom = chatRoomService.findChatRoom(chatRoomId);
         // 채팅방상태 확정으로 변경
         chatRoom.acceptMatching();
 
         // 매칭 확정 메시지 저장
         String content = "매칭되었습니다.\n대전에서 게임을 시작하세요";
-        Chatting chatting = chattingService.buildChatMessage(chatRoom,content,MessageType.STARTGAME);
+        Chatting chatting =
+                chattingService.buildChatMessage(chatRoom, content, MessageType.STARTGAME);
         chattingRepository.save(chatting);
         // STOMP 메세지 전송
         sendStompSystemMessage(content, chatRoomId);
@@ -174,7 +176,7 @@ public class ParticipantService {
     public void finalizeWorkspaceMatching(Long workspaceId, List<Participant> participants) {
         Workspace workspace = workspaceService.findWorkspace(workspaceId);
         workspace.acceptMatchingFinal();
-        Game game= gameService.createAndSaveDefaultGame(workspace);
+        Game game = gameService.createAndSaveDefaultGame(workspace);
         saveGameResult(game, participants);
     }
 
@@ -201,17 +203,15 @@ public class ParticipantService {
         // 상대방의 매칭 신청 현황
         boolean counterpart = isCounterpartMatched(participantIds, userParticipant.getId());
         // 전체 게임방의 매칭 결과
-        boolean matchResult = chatRoomService.findChatRoom(chatRoomId)
-                        .getWorkspace()
-                        .isMatched();
+        boolean matchResult = chatRoomService.findChatRoom(chatRoomId).getWorkspace().isMatched();
         return new GetMatchStatusResponse(counterpart, myself, matchResult);
     }
 
     public boolean isCounterpartMatched(List<Long> participantIds, Long userParticipantId) {
         return participantIds.stream()
-                .filter(parId-> !parId.equals(userParticipantId))
-                .map(parId-> findParticipant(parId))
-                .anyMatch(participant ->participant.isParticipantMatch());
+                .filter(parId -> !parId.equals(userParticipantId))
+                .map(parId -> findParticipant(parId))
+                .anyMatch(participant -> participant.isParticipantMatch());
     }
 
     // 매칭 현황 조회

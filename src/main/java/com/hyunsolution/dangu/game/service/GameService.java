@@ -90,7 +90,6 @@ public class GameService {
                 .toList();
     }
 
-
     private String calculateWinnerNickname(GetGameListDto dto) {
 
         if (!dto.myWin() && !dto.opponentWin()) {
@@ -168,5 +167,4 @@ public class GameService {
         Game gameDefault = Game.createDefaultGame(workspace);
         return gameRepository.save(gameDefault);
     }
-
 }
