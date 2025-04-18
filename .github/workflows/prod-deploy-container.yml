@@ -63,7 +63,7 @@ jobs:
 
       # 아티팩트 다운로드
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: application-jar
           path: build/libs
